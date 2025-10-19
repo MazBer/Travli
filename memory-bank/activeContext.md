@@ -1,46 +1,56 @@
 # Active Context: Travli
 
 ## Current Status
-**Project Initialization Phase** - Setting up memory bank and planning architecture
+**Phase 1: Core Functionality** - Building MVP features
 
 ## Current Work Focus
-- Establishing project foundation
-- Defining technical stack
-- Creating development roadmap
-- Setting up memory bank documentation
+- Implementing place selection interface
+- Preparing for route optimization (ACO algorithm)
+- Polishing UI and UX
+- Testing multi-language support
 
-## Recent Changes
-- Created memory bank structure
-- Documented project requirements
-- Defined phased development approach
-- Established design system based on provided samples
+## Recent Changes (Oct 19, 2025)
+- ✅ Completed Phase 0 (Foundation & Setup)
+- ✅ Integrated Nominatim API for city search
+- ✅ Integrated Overpass API for places data
+- ✅ Implemented Material You dynamic theming
+- ✅ Added multi-language support (EN, TR, DE, ES, FR)
+- ✅ Created search history feature
+- ✅ Implemented smart city ranking by popularity
+- ✅ Polished bottom navigation with pill-shaped selection
+- ✅ Fixed theme colors to work with Material You
 
 ## Next Immediate Steps
-1. Get user confirmation on Flutter vs React Native
-2. Initialize Flutter project structure
-3. Set up design system and theme
-4. Create basic navigation structure (Home, Search, Settings)
-5. Implement UI for home screen based on design sample
+1. Implement place selection (checkboxes/toggle)
+2. Handle multiple place selection
+3. Start ACO algorithm implementation
+4. Create distance matrix calculation
+5. Display optimized route
 
 ## Active Decisions & Considerations
 
 ### Framework Decision
-**Pending**: Flutter vs React Native
-- **Leaning towards Flutter** because:
+**DECIDED**: ✅ Flutter
+- **Reasons**:
   - Developer has C# background (Dart is similar)
   - Better performance out of the box
   - Excellent UI toolkit
   - Single codebase, truly native performance
   - Strong community and documentation
+- **Status**: Implemented and working
 
 ### API Strategy
-**Pending**: Which APIs to use for places data
-- **Options**:
-  1. Google Places API (paid, comprehensive, reliable)
-  2. Foursquare API (freemium, good coverage)
-  3. OpenStreetMap + Overpass API (free, requires more work)
-  4. Combination approach (free APIs + fallback to paid)
-- **Decision needed**: Budget and data quality requirements
+**DECIDED**: ✅ Free OpenStreetMap APIs
+- **City Search**: Nominatim API
+  - Free, no API key required
+  - Good global coverage
+  - Returns coordinates and address details
+- **Places Data**: Overpass API
+  - Free, no API key required
+  - Comprehensive POI data
+  - Tourism, attractions, restaurants, etc.
+- **Status**: Integrated and working
+- **Future**: May add Google Places as fallback for better data quality
 
 ### Database Schema
 **In Progress**: Designing local database structure

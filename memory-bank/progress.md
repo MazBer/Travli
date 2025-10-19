@@ -30,9 +30,13 @@ Phase 3: Polish & Optimization
 - [x] Create design system (colors, typography, spacing)
 - [x] Set up navigation structure (bottom tabs)
 - [x] Build basic screens (Home, Search, Settings)
-- [x] Test app on Windows
-- [ ] Set up local database (SQLite schema) - DEFERRED TO PHASE 1
-- [ ] Create mock data for development - DEFERRED TO PHASE 1
+- [x] Test app on Android emulator
+- [x] Set up local database (SQLite schema)
+- [x] Create mock data for development
+- [x] Implement Material You dynamic theming
+- [x] Add smooth navigation animations
+- [x] Polish UI with modern bottom navigation
+- [x] Implement multi-language support (5 languages)
 
 ### Deliverables
 - ✅ Memory bank documentation
@@ -51,33 +55,35 @@ Phase 3: Polish & Optimization
 
 ## Phase 1: Core Functionality
 **Goal**: Implement essential features for MVP
-**Status**: NOT STARTED
+**Status**: IN PROGRESS 🔄
 
 ### Tasks
 
 #### 1.1 Home Screen
-- [ ] Implement home screen layout (match design sample)
-- [ ] Create "Recent trips" horizontal scroll
-- [ ] Create "Recently viewed" city list
-- [ ] Add placeholder data
-- [ ] Implement navigation to other screens
+- [x] Implement home screen layout (match design sample)
+- [x] Create "Recent trips" horizontal scroll
+- [x] Create "Recently viewed" city list
+- [x] Add placeholder data
+- [x] Implement navigation to other screens
 
 #### 1.2 Search Functionality
-- [ ] Implement search screen UI (match design sample)
-- [ ] Create city search input with clear button
-- [ ] Integrate city search API (or use mock data initially)
-- [ ] Display search results
-- [ ] Implement city selection
+- [x] Implement search screen UI (match design sample)
+- [x] Create city search input with clear button
+- [x] Integrate city search API (Nominatim OpenStreetMap)
+- [x] Display search results with smart sorting
+- [x] Implement city selection
+- [x] Add search history feature
+- [x] Implement popularity-based city ranking
 
 #### 1.3 Places Display
-- [ ] Fetch places for selected city
-- [ ] Display places list with images
-- [ ] Show place details (name, category, description)
-- [ ] Implement place selection (checkboxes/toggle)
-- [ ] Handle multiple place selection
+- [x] Fetch places for selected city (Overpass API)
+- [x] Display places list with images
+- [x] Show place details (name, category, description)
+- [ ] Implement place selection (checkboxes/toggle) - IN PROGRESS
+- [ ] Handle multiple place selection - IN PROGRESS
 
 #### 1.4 Route Optimization
-- [ ] Implement Ant Colony Optimization algorithm
+- [ ] Implement Ant Colony Optimization algorithm - NEXT
 - [ ] Create distance/time matrix calculation
 - [ ] Integrate with Maps API for distances
 - [ ] Calculate optimal route
@@ -85,11 +91,12 @@ Phase 3: Polish & Optimization
 - [ ] Show estimated travel time/distance
 
 #### 1.5 Settings Screen
-- [ ] Implement settings screen UI (match design sample)
-- [ ] Add theme preference (system/light/dark)
-- [ ] Add language selection
-- [ ] Add units preference (metric/imperial)
-- [ ] Store preferences locally
+- [x] Implement settings screen UI (match design sample)
+- [x] Add theme preference (system/light/dark)
+- [x] Add Material You dynamic color option
+- [x] Add language selection (5 languages: EN, TR, DE, ES, FR)
+- [ ] Add units preference (metric/imperial) - TODO
+- [x] Store preferences locally
 
 ### Deliverables
 - ⏳ Functional home screen with mock data

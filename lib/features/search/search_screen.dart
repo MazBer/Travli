@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/providers/api_providers.dart';
+import '../../core/providers/language_provider.dart';
+import '../../core/services/search_history_service.dart';
+import '../../models/city.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final SearchHistoryService _historyService = SearchHistoryService();
+  List<String> _searchHistory = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSearchHistory();
+  }
 
   @override
   void dispose() {
@@ -18,14 +30,37 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
+  Future<void> _loadSearchHistory() async {
+    final history = await _historyService.getHistory();
+    setState(() {
+      _searchHistory = history;
+    });
+  }
+
+  void _onCitySelected(City city) async {
+    // Save to history
+    await _historyService.addToHistory(city.name);
+    await _loadSearchHistory();
+    
+    ref.read(selectedCityProvider.notifier).state = city;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CityPlacesScreen(city: city),
+      ),
+    );
+  }
+
+  void _onHistoryItemTap(String query) {
+    _searchController.text = query;
+    ref.read(citySearchQueryProvider.notifier).state = query;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final searchResults = ref.watch(citySearchResultsProvider);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: const Text('Search'),
       ),
       body: Column(
@@ -36,22 +71,13 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search for a city...',
-                prefixIcon: const Icon(Icons.search, color: AppColors.secondaryText),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.cancel, color: AppColors.secondaryText),
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                          });
-                        },
-                      )
-                    : null,
+                prefixIcon: Icon(Icons.search),
               ),
               onChanged: (value) {
-                setState(() {});
+                ref.read(citySearchQueryProvider.notifier).state = value;
+                setState(() {}); // Rebuild to show/hide clear button
               },
             ),
           ),
@@ -61,22 +87,93 @@ class _SearchScreenState extends State<SearchScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: Text(
-                'Top places in ${_searchController.text}',
+                'Cities',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return _buildPlaceItem(context, index);
+              child: searchResults.when(
+                data: (cities) {
+                  if (cities.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No cities found',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    itemCount: cities.length,
+                    itemBuilder: (context, index) {
+                      return _buildCityItem(context, cities[index]);
+                    },
+                  );
                 },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(
+                  child: Text('Error: ${error.toString()}'),
+                ),
               ),
             ),
           ] else ...[
+            // Search history
+            if (_searchHistory.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Searches',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        await _historyService.clearHistory();
+                        await _loadSearchHistory();
+                      },
+                      child: Text('Clear'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                itemCount: _searchHistory.length,
+                itemBuilder: (context, index) {
+                  final query = _searchHistory[index];
+                  return ListTile(
+                    leading: Icon(
+                      Icons.history,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    title: Text(query),
+                    trailing: IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      onPressed: () async {
+                        await _historyService.removeFromHistory(query);
+                        await _loadSearchHistory();
+                      },
+                    ),
+                    onTap: () => _onHistoryItemTap(query),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.xl),
+            ],
+            
             Expanded(
               child: Center(
                 child: Column(
@@ -85,13 +182,13 @@ class _SearchScreenState extends State<SearchScreen> {
                     Icon(
                       Icons.search,
                       size: 64,
-                      color: AppColors.secondaryText.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
                       'Search for a city to explore',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.secondaryText,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                   ],
@@ -104,47 +201,164 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildPlaceItem(BuildContext context, int index) {
-    final places = [
-      {'name': 'Eiffel Tower', 'category': 'Iconic landmark'},
-      {'name': 'Louvre Museum', 'category': 'Art museum'},
-      {'name': 'Arc de Triomphe', 'category': 'Monument'},
-      {'name': 'Notre-Dame Cathedral', 'category': 'Cathedral'},
-      {'name': 'Sacré-Cœur Basilica', 'category': 'Basilica'},
-    ];
+  Widget _buildCityItem(BuildContext context, City city) {
+    final currentLanguage = ref.watch(languageProvider);
+    final translationService = ref.watch(translationServiceProvider);
     
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Row(
-        children: [
-          Container(
-            width: AppSpacing.avatarMd,
-            height: AppSpacing.avatarMd,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+    final translatedCityName = city.getTranslatedName(currentLanguage, translationService);
+    final translatedCountryName = city.getTranslatedCountry(currentLanguage, translationService);
+    
+    return InkWell(
+      onTap: () => _onCitySelected(city),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: AppSpacing.avatarMd,
+              height: AppSpacing.avatarMd,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              ),
+              child: Icon(
+                Icons.location_city,
+                size: 24,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-            child: const Center(
-              child: Icon(Icons.image, size: 24, color: AppColors.secondaryText),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    translatedCityName,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  Text(
+                    translatedCountryName,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  places[index]['category']!,
-                  style: Theme.of(context).textTheme.labelLarge,
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// City Places Screen
+class CityPlacesScreen extends ConsumerWidget {
+  final City city;
+
+  const CityPlacesScreen({super.key, required this.city});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final placesAsync = ref.watch(cityPlacesProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(city.name),
+      ),
+      body: placesAsync.when(
+        data: (places) {
+          if (places.isEmpty) {
+            return Center(
+              child: Text(
+                'No places found in ${city.name}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
-                Text(
-                  places[index]['name']!,
-                  style: Theme.of(context).textTheme.labelMedium,
+              ),
+            );
+          }
+          return ListView.builder(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            itemCount: places.length,
+            itemBuilder: (context, index) {
+              final place = places[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: AppSpacing.avatarMd,
+                      height: AppSpacing.avatarMd,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                      ),
+                      child: Icon(
+                        Icons.place,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            place.name,
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          Text(
+                            place.category,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          if (place.address != null)
+                            Text(
+                              place.address!,
+                              style: Theme.of(context).textTheme.labelSmall,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48),
+              const SizedBox(height: 16),
+              Text('Error loading places'),
+              const SizedBox(height: 8),
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/providers/data_providers.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recentCitiesAsync = ref.watch(recentCitiesProvider);
+    final recentRoutesAsync = ref.watch(recentRoutesProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -39,13 +42,29 @@ class HomeScreen extends StatelessWidget {
             
             SizedBox(
               height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return _buildTripCard(context, index);
+              child: recentRoutesAsync.when(
+                data: (routes) {
+                  if (routes.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No recent trips yet',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    itemCount: routes.length,
+                    itemBuilder: (context, index) {
+                      return _buildTripCard(context, routes[index]);
+                    },
+                  );
                 },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => Center(child: Text('Error: $error')),
               ),
             ),
             
@@ -63,14 +82,33 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              itemCount: 3,
-              itemBuilder: (context, index) {
-                return _buildCityCard(context, index);
+            recentCitiesAsync.when(
+              data: (cities) {
+                if (cities.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: Center(
+                      child: Text(
+                        'No recently viewed cities',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  itemCount: cities.length,
+                  itemBuilder: (context, index) {
+                    return _buildCityCard(context, cities[index]);
+                  },
+                );
               },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => Center(child: Text('Error: $error')),
             ),
             
             const SizedBox(height: AppSpacing.xl),
@@ -80,13 +118,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTripCard(BuildContext context, int index) {
-    final trips = [
-      {'title': 'Hiking in the Alps', 'duration': '3 days'},
-      {'title': 'Relaxing on the Maldives', 'duration': '7 days'},
-      {'title': 'Exploring Tokyo', 'duration': '5 days'},
-    ];
-    
+  Widget _buildTripCard(BuildContext context, route) {
     return Container(
       width: 240,
       margin: const EdgeInsets.only(right: AppSpacing.md),
@@ -96,20 +128,26 @@ class HomeScreen extends StatelessWidget {
           Container(
             height: 135,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             ),
-            child: const Center(
-              child: Icon(Icons.image, size: 48, color: AppColors.secondaryText),
+            child: Center(
+              child: Icon(
+                Icons.route,
+                size: 48,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            trips[index]['title']!,
+            route.name,
             style: Theme.of(context).textTheme.labelLarge,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Text(
-            trips[index]['duration']!,
+            '${route.formattedDistance} • ${route.formattedDuration}',
             style: Theme.of(context).textTheme.labelMedium,
           ),
         ],
@@ -117,13 +155,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCityCard(BuildContext context, int index) {
-    final cities = [
-      {'name': 'Paris', 'country': 'France'},
-      {'name': 'Rome', 'country': 'Italy'},
-      {'name': 'London', 'country': 'United Kingdom'},
-    ];
-    
+  Widget _buildCityCard(BuildContext context, city) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       child: Row(
@@ -134,18 +166,18 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Popular',
+                  'Recently viewed',
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  cities[index]['name']!,
+                  city.name,
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  cities[index]['country']!,
+                  city.country,
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
               ],
@@ -155,11 +187,15 @@ class HomeScreen extends StatelessWidget {
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               ),
-              child: const Center(
-                child: Icon(Icons.image, size: 32, color: AppColors.secondaryText),
+              child: Center(
+                child: Icon(
+                  Icons.location_city,
+                  size: 32,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
           ),
