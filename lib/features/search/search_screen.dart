@@ -307,6 +307,13 @@ class CityPlacesScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final placesAsync = ref.watch(cityPlacesProvider);
     final selectedPlaces = ref.watch(selectedPlacesProvider);
+    
+    // Clear selection when city changes
+    ref.listen(selectedCityProvider, (previous, next) {
+      if (previous?.id != next?.id) {
+        ref.read(selectedPlacesProvider.notifier).state = {};
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -327,18 +334,48 @@ class CityPlacesScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Selection info bar
+          // Selection info capsule
           if (selectedPlaces.isNotEmpty)
-            Container(
-              width: double.infinity,
+            Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Text(
-                '${selectedPlaces.length} ${l10n.placesSelected}',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+              child: Center(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(
+                        '${selectedPlaces.length} ${l10n.placesSelected}',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
           
@@ -374,9 +411,12 @@ class CityPlacesScreen extends ConsumerWidget {
                       {...current, index};
                   }
                 },
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
                   margin: const EdgeInsets.only(bottom: AppSpacing.md),
                   padding: const EdgeInsets.all(AppSpacing.md),
+                  transform: Matrix4.identity()..scale(isSelected ? 1.02 : 1.0),
                   decoration: BoxDecoration(
                     color: isSelected 
                       ? Theme.of(context).colorScheme.primaryContainer
@@ -387,6 +427,15 @@ class CityPlacesScreen extends ConsumerWidget {
                           color: Theme.of(context).colorScheme.primary,
                           width: 2,
                         )
+                      : null,
+                    boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
                       : null,
                   ),
                   child: Row(

@@ -54,6 +54,9 @@
 [2025-10-21 18:44] - Localized place selection UI
 [2025-10-21 18:46] - Moved checkboxes to right side for better UX
 [2025-10-21 18:51] - Fixed selection system (use index instead of null IDs)
+[2025-10-21 18:59] - Added animations (scale + shadow on selection)
+[2025-10-21 18:59] - Changed selection banner to compact capsule with icon
+[2025-10-21 18:59] - Auto-clear selection when switching cities
 
 ## Status: 🔄 IN PROGRESS (70% complete)
 **Next:** Route optimization with ACO algorithm (Phase 1.4)
