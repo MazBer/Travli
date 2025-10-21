@@ -44,5 +44,8 @@
 [2025-10-21 18:08] - Localized home screen
 [2025-10-21 18:10] - Localized settings screen (complete)
 
+## Documentation
+[2025-10-21 18:29] - Updated README with comprehensive project info
+
 ## Status: 🔄 IN PROGRESS
 **Next:** Place selection & route optimization
