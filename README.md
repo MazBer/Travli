@@ -175,7 +175,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@MazBer](https://github.com/MazBer)
 
 ## 🙏 Acknowledgments
 
@@ -187,7 +187,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email support@travli.app or open an issue on GitHub.
+For support, email mazharberkaydogdu@gmail.com or open an issue on GitHub.
 
 ---
 
