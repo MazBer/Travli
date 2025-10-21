@@ -127,4 +127,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noCitiesFound => 'Şehir bulunamadı';
+
+  @override
+  String get clearSelection => 'Temizle';
+
+  @override
+  String get placesSelected => 'yer seçildi';
+
+  @override
+  String get generatingRoute => 'Optimize edilmiş rota oluşturuluyor...';
 }

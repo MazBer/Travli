@@ -127,4 +127,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noCitiesFound => 'Aucune ville trouvée';
+
+  @override
+  String get clearSelection => 'Effacer';
+
+  @override
+  String get placesSelected => 'lieux sélectionnés';
+
+  @override
+  String get generatingRoute => 'Génération de l\'itinéraire optimisé...';
 }

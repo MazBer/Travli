@@ -199,5 +199,20 @@
   "noCitiesFound": "No cities found",
   "@noCitiesFound": {
     "description": "No cities found message"
+  },
+  
+  "clearSelection": "Clear",
+  "@clearSelection": {
+    "description": "Clear selection button"
+  },
+  
+  "placesSelected": "places selected",
+  "@placesSelected": {
+    "description": "Places selected count"
+  },
+  
+  "generatingRoute": "Generating optimized route...",
+  "@generatingRoute": {
+    "description": "Generating route message"
   }
 }

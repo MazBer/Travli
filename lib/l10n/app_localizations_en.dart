@@ -127,4 +127,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noCitiesFound => 'No cities found';
+
+  @override
+  String get clearSelection => 'Clear';
+
+  @override
+  String get placesSelected => 'places selected';
+
+  @override
+  String get generatingRoute => 'Generating optimized route...';
 }

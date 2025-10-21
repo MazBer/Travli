@@ -47,5 +47,11 @@
 ## Documentation
 [2025-10-21 18:29] - Updated README with comprehensive project info
 
-## Status: 🔄 IN PROGRESS
-**Next:** Place selection & route optimization
+## Place Selection (Phase 1.3)
+[2025-10-21 18:40] - Implemented place selection with checkboxes
+[2025-10-21 18:42] - Added selection state management
+[2025-10-21 18:43] - Added "Generate Route" button (min 2 places)
+[2025-10-21 18:44] - Localized place selection UI
+
+## Status: 🔄 IN PROGRESS (70% complete)
+**Next:** Route optimization with ACO algorithm (Phase 1.4)

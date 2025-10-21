@@ -40,5 +40,8 @@
   "optimizedRoute": "Optimize Edilmiş Rota",
   "saveRoute": "Rotayı Kaydet",
   "shareRoute": "Rotayı Paylaş",
-  "noCitiesFound": "Şehir bulunamadı"
+  "noCitiesFound": "Şehir bulunamadı",
+  "clearSelection": "Temizle",
+  "placesSelected": "yer seçildi",
+  "generatingRoute": "Optimize edilmiş rota oluşturuluyor..."
 }

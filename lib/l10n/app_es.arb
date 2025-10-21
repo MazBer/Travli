@@ -40,5 +40,8 @@
   "optimizedRoute": "Ruta optimizada",
   "saveRoute": "Guardar ruta",
   "shareRoute": "Compartir ruta",
-  "noCitiesFound": "No se encontraron ciudades"
+  "noCitiesFound": "No se encontraron ciudades",
+  "clearSelection": "Borrar",
+  "placesSelected": "lugares seleccionados",
+  "generatingRoute": "Generando ruta optimizada..."
 }

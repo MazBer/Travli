@@ -293,6 +293,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 }
 
+// Selected places provider
+final selectedPlacesProvider = StateProvider<Set<int>>((ref) => {});
+
 // City Places Screen
 class CityPlacesScreen extends ConsumerWidget {
   final City city;
@@ -301,13 +304,47 @@ class CityPlacesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final placesAsync = ref.watch(cityPlacesProvider);
+    final selectedPlaces = ref.watch(selectedPlacesProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(city.name),
+        actions: [
+          if (selectedPlaces.isNotEmpty)
+            TextButton(
+              onPressed: () {
+                // Clear selection
+                ref.read(selectedPlacesProvider.notifier).state = {};
+              },
+              child: Text(
+                l10n.clearSelection,
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+              ),
+            ),
+        ],
       ),
-      body: placesAsync.when(
+      body: Column(
+        children: [
+          // Selection info bar
+          if (selectedPlaces.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(AppSpacing.md),
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Text(
+                '${selectedPlaces.length} ${l10n.placesSelected}',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          
+          // Places list
+          Expanded(
+            child: placesAsync.when(
         data: (places) {
           if (places.isEmpty) {
             return Center(
@@ -324,52 +361,91 @@ class CityPlacesScreen extends ConsumerWidget {
             itemCount: places.length,
             itemBuilder: (context, index) {
               final place = places[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: AppSpacing.avatarMd,
-                      height: AppSpacing.avatarMd,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              final isSelected = selectedPlaces.contains(place.id);
+              
+              return InkWell(
+                onTap: () {
+                  if (place.id == null) return;
+                  final current = ref.read(selectedPlacesProvider);
+                  if (isSelected) {
+                    ref.read(selectedPlacesProvider.notifier).state = 
+                      current.where((id) => id != place.id).toSet();
+                  } else {
+                    ref.read(selectedPlacesProvider.notifier).state = 
+                      {...current, place.id!};
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: isSelected 
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    border: isSelected
+                      ? Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 2,
+                        )
+                      : null,
+                  ),
+                  child: Row(
+                    children: [
+                      // Checkbox
+                      Checkbox(
+                        value: isSelected,
+                        onChanged: (value) {
+                          if (place.id == null) return;
+                          final current = ref.read(selectedPlacesProvider);
+                          if (value == true) {
+                            ref.read(selectedPlacesProvider.notifier).state = 
+                              {...current, place.id!};
+                          } else {
+                            ref.read(selectedPlacesProvider.notifier).state = 
+                              current.where((id) => id != place.id).toSet();
+                          }
+                        },
                       ),
-                      child: Icon(
-                        Icons.place,
-                        size: 24,
-                        color: Theme.of(context).colorScheme.primary,
+                      const SizedBox(width: AppSpacing.sm),
+                      Container(
+                        width: AppSpacing.avatarMd,
+                        height: AppSpacing.avatarMd,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                        ),
+                        child: Icon(
+                          Icons.place,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.lg),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            place.name,
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          Text(
-                            place.category,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          if (place.address != null)
+                      const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              place.address!,
-                              style: Theme.of(context).textTheme.labelSmall,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              place.name,
+                              style: Theme.of(context).textTheme.labelLarge,
                             ),
-                        ],
+                            Text(
+                              place.category,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            if (place.address != null)
+                              Text(
+                                place.address!,
+                                style: Theme.of(context).textTheme.labelSmall,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -392,7 +468,36 @@ class CityPlacesScreen extends ConsumerWidget {
             ],
           ),
         ),
+            ),
+          ),
+        ],
       ),
+      // Generate Route button
+      bottomNavigationBar: selectedPlaces.length >= 2
+        ? SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: FilledButton(
+                onPressed: () {
+                  // TODO: Navigate to route generation
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.generatingRoute),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                ),
+                child: Text(
+                  l10n.generateRoute,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          )
+        : null,
     );
   }
 }

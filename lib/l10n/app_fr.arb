@@ -40,5 +40,8 @@
   "optimizedRoute": "Itinéraire optimisé",
   "saveRoute": "Enregistrer l'itinéraire",
   "shareRoute": "Partager l'itinéraire",
-  "noCitiesFound": "Aucune ville trouvée"
+  "noCitiesFound": "Aucune ville trouvée",
+  "clearSelection": "Effacer",
+  "placesSelected": "lieux sélectionnés",
+  "generatingRoute": "Génération de l'itinéraire optimisé..."
 }

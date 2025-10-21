@@ -343,6 +343,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No cities found'**
   String get noCitiesFound;
+
+  /// Clear selection button
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearSelection;
+
+  /// Places selected count
+  ///
+  /// In en, this message translates to:
+  /// **'places selected'**
+  String get placesSelected;
+
+  /// Generating route message
+  ///
+  /// In en, this message translates to:
+  /// **'Generating optimized route...'**
+  String get generatingRoute;
 }
 
 class _AppLocalizationsDelegate
