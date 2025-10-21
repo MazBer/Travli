@@ -53,6 +53,7 @@
 [2025-10-21 18:43] - Added "Generate Route" button (min 2 places)
 [2025-10-21 18:44] - Localized place selection UI
 [2025-10-21 18:46] - Moved checkboxes to right side for better UX
+[2025-10-21 18:51] - Fixed selection system (use index instead of null IDs)
 
 ## Status: 🔄 IN PROGRESS (70% complete)
 **Next:** Route optimization with ACO algorithm (Phase 1.4)

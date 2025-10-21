@@ -361,18 +361,17 @@ class CityPlacesScreen extends ConsumerWidget {
             itemCount: places.length,
             itemBuilder: (context, index) {
               final place = places[index];
-              final isSelected = selectedPlaces.contains(place.id);
+              final isSelected = selectedPlaces.contains(index);
               
               return InkWell(
                 onTap: () {
-                  if (place.id == null) return;
                   final current = ref.read(selectedPlacesProvider);
                   if (isSelected) {
                     ref.read(selectedPlacesProvider.notifier).state = 
-                      current.where((id) => id != place.id).toSet();
+                      current.where((id) => id != index).toSet();
                   } else {
                     ref.read(selectedPlacesProvider.notifier).state = 
-                      {...current, place.id!};
+                      {...current, index};
                   }
                 },
                 child: Container(
@@ -432,14 +431,13 @@ class CityPlacesScreen extends ConsumerWidget {
                       Checkbox(
                         value: isSelected,
                         onChanged: (value) {
-                          if (place.id == null) return;
                           final current = ref.read(selectedPlacesProvider);
                           if (value == true) {
                             ref.read(selectedPlacesProvider.notifier).state = 
-                              {...current, place.id!};
+                              {...current, index};
                           } else {
                             ref.read(selectedPlacesProvider.notifier).state = 
-                              current.where((id) => id != place.id).toSet();
+                              current.where((id) => id != index).toSet();
                           }
                         },
                       ),
