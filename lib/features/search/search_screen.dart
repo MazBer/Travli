@@ -392,22 +392,6 @@ class CityPlacesScreen extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      // Checkbox
-                      Checkbox(
-                        value: isSelected,
-                        onChanged: (value) {
-                          if (place.id == null) return;
-                          final current = ref.read(selectedPlacesProvider);
-                          if (value == true) {
-                            ref.read(selectedPlacesProvider.notifier).state = 
-                              {...current, place.id!};
-                          } else {
-                            ref.read(selectedPlacesProvider.notifier).state = 
-                              current.where((id) => id != place.id).toSet();
-                          }
-                        },
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
                       Container(
                         width: AppSpacing.avatarMd,
                         height: AppSpacing.avatarMd,
@@ -443,6 +427,21 @@ class CityPlacesScreen extends ConsumerWidget {
                               ),
                           ],
                         ),
+                      ),
+                      // Checkbox on the right
+                      Checkbox(
+                        value: isSelected,
+                        onChanged: (value) {
+                          if (place.id == null) return;
+                          final current = ref.read(selectedPlacesProvider);
+                          if (value == true) {
+                            ref.read(selectedPlacesProvider.notifier).state = 
+                              {...current, place.id!};
+                          } else {
+                            ref.read(selectedPlacesProvider.notifier).state = 
+                              current.where((id) => id != place.id).toSet();
+                          }
+                        },
                       ),
                     ],
                   ),
