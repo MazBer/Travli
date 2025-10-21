@@ -1,0 +1,203 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "Travli",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  
+  "home": "Home",
+  "@home": {
+    "description": "Home tab label"
+  },
+  
+  "search": "Search",
+  "@search": {
+    "description": "Search tab label"
+  },
+  
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings tab label"
+  },
+  
+  "searchForCity": "Search for a city...",
+  "@searchForCity": {
+    "description": "Search box hint text"
+  },
+  
+  "searchResults": "Search Results",
+  "@searchResults": {
+    "description": "Search results header"
+  },
+  
+  "recentSearches": "Recent Searches",
+  "@recentSearches": {
+    "description": "Recent searches header"
+  },
+  
+  "noRecentSearches": "No recent searches",
+  "@noRecentSearches": {
+    "description": "Empty state for recent searches"
+  },
+  
+  "clearHistory": "Clear History",
+  "@clearHistory": {
+    "description": "Clear search history button"
+  },
+  
+  "recentTrips": "Recent Trips",
+  "@recentTrips": {
+    "description": "Recent trips section title"
+  },
+  
+  "recentlyViewed": "Recently Viewed",
+  "@recentlyViewed": {
+    "description": "Recently viewed cities section title"
+  },
+  
+  "noRecentTrips": "No recent trips yet",
+  "@noRecentTrips": {
+    "description": "Empty state for recent trips"
+  },
+  
+  "noRecentlyViewed": "No recently viewed cities",
+  "@noRecentlyViewed": {
+    "description": "Empty state for recently viewed"
+  },
+  
+  "preferences": "Preferences",
+  "@preferences": {
+    "description": "Preferences section title"
+  },
+  
+  "theme": "Theme",
+  "@theme": {
+    "description": "Theme setting label"
+  },
+  
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Light theme option"
+  },
+  
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Dark theme option"
+  },
+  
+  "themeSystem": "System",
+  "@themeSystem": {
+    "description": "System theme option"
+  },
+  
+  "colorScheme": "Color Scheme",
+  "@colorScheme": {
+    "description": "Color scheme setting label"
+  },
+  
+  "materialYou": "Material You",
+  "@materialYou": {
+    "description": "Material You description"
+  },
+  
+  "themeColor": "Theme Color",
+  "@themeColor": {
+    "description": "Theme color setting label"
+  },
+  
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  
+  "units": "Units",
+  "@units": {
+    "description": "Units setting label"
+  },
+  
+  "metric": "Metric",
+  "@metric": {
+    "description": "Metric units option"
+  },
+  
+  "imperial": "Imperial",
+  "@imperial": {
+    "description": "Imperial units option"
+  },
+  
+  "account": "Account",
+  "@account": {
+    "description": "Account section title"
+  },
+  
+  "profile": "Profile",
+  "@profile": {
+    "description": "Profile menu item"
+  },
+  
+  "signIn": "Sign In",
+  "@signIn": {
+    "description": "Sign in button"
+  },
+  
+  "signOut": "Sign Out",
+  "@signOut": {
+    "description": "Sign out button"
+  },
+  
+  "about": "About",
+  "@about": {
+    "description": "About section title"
+  },
+  
+  "version": "Version",
+  "@version": {
+    "description": "App version label"
+  },
+  
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy menu item"
+  },
+  
+  "termsOfService": "Terms of Service",
+  "@termsOfService": {
+    "description": "Terms of service menu item"
+  },
+  
+  "places": "Places",
+  "@places": {
+    "description": "Places label"
+  },
+  
+  "selectPlaces": "Select places to visit",
+  "@selectPlaces": {
+    "description": "Select places instruction"
+  },
+  
+  "generateRoute": "Generate Route",
+  "@generateRoute": {
+    "description": "Generate route button"
+  },
+  
+  "optimizedRoute": "Optimized Route",
+  "@optimizedRoute": {
+    "description": "Optimized route title"
+  },
+  
+  "saveRoute": "Save Route",
+  "@saveRoute": {
+    "description": "Save route button"
+  },
+  
+  "shareRoute": "Share Route",
+  "@shareRoute": {
+    "description": "Share route button"
+  },
+  
+  "noCitiesFound": "No cities found",
+  "@noCitiesFound": {
+    "description": "No cities found message"
+  }
+}

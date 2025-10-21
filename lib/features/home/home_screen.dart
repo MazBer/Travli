@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/data_providers.dart';
 
@@ -8,11 +9,12 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final recentCitiesAsync = ref.watch(recentCitiesProvider);
     final recentRoutesAsync = ref.watch(recentRoutesProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text(l10n.home),
         actions: [
           IconButton(
             icon: const Icon(Icons.person_outline),
@@ -35,7 +37,7 @@ class HomeScreen extends ConsumerWidget {
                 AppSpacing.md,
               ),
               child: Text(
-                'Recent trips',
+                l10n.recentTrips,
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
@@ -47,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
                   if (routes.isEmpty) {
                     return Center(
                       child: Text(
-                        'No recent trips yet',
+                        l10n.noRecentTrips,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),
@@ -77,7 +79,7 @@ class HomeScreen extends ConsumerWidget {
                 AppSpacing.md,
               ),
               child: Text(
-                'Recently viewed',
+                l10n.recentlyViewed,
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
@@ -89,7 +91,7 @@ class HomeScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Center(
                       child: Text(
-                        'No recently viewed cities',
+                        l10n.noRecentlyViewed,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),

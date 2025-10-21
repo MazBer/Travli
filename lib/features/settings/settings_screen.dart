@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/services/translation_service.dart';
+import '../../core/theme/theme_constants.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final themeMode = ref.watch(themeModeProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
       ),
       body: ListView(
         children: [
@@ -27,19 +30,20 @@ class SettingsScreen extends ConsumerWidget {
               AppSpacing.sm,
             ),
             child: Text(
-              'Preferences',
+              l10n.preferences,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
           
-          _buildThemeSwitcher(context, ref, themeMode),
-          _buildColorSchemeSwitcher(context, ref),
-          _buildLanguageSelector(context, ref),
+          _buildThemeSwitcher(context, ref, themeMode, l10n),
+          _buildColorSchemeSwitcher(context, ref, l10n),
+          _buildColorSeedSelector(context, ref, l10n),
+          _buildLanguageSelector(context, ref, l10n),
           _buildSettingItem(
             context,
             icon: Icons.straighten_outlined,
-            title: 'Units',
-            subtitle: 'Metric',
+            title: l10n.units,
+            subtitle: l10n.metric,
           ),
           
           // Account section
@@ -51,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
               AppSpacing.sm,
             ),
             child: Text(
-              'Account',
+              l10n.account,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
@@ -59,34 +63,19 @@ class SettingsScreen extends ConsumerWidget {
           _buildSettingItem(
             context,
             icon: Icons.person_outline,
-            title: 'Profile',
+            title: l10n.profile,
           ),
           _buildSettingItem(
             context,
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-          ),
-          _buildSettingItem(
-            context,
-            icon: Icons.shield_outlined,
-            title: 'Privacy',
-          ),
-          _buildSettingItem(
-            context,
-            icon: Icons.help_outline,
-            title: 'Help',
-          ),
-          _buildSettingItem(
-            context,
-            icon: Icons.info_outline,
-            title: 'About',
+            icon: Icons.login,
+            title: l10n.signIn,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildColorSchemeSwitcher(BuildContext context, WidgetRef ref) {
+  Widget _buildColorSchemeSwitcher(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final useDynamicColor = ref.watch(useDynamicColorProvider);
 
     return ListTile(
@@ -104,11 +93,11 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
       title: Text(
-        'Color Scheme',
+        l10n.colorScheme,
         style: Theme.of(context).textTheme.labelLarge,
       ),
       subtitle: Text(
-        useDynamicColor ? 'Material You' : 'Default',
+        useDynamicColor ? l10n.materialYou : 'Default',
         style: Theme.of(context).textTheme.labelMedium,
       ),
       trailing: Switch(
@@ -120,7 +109,71 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildLanguageSelector(BuildContext context, WidgetRef ref) {
+  Widget _buildColorSeedSelector(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final useDynamicColor = ref.watch(useDynamicColorProvider);
+    final currentColorSeed = ref.watch(colorSeedProvider);
+
+    // Only show if Material You is disabled
+    if (useDynamicColor) {
+      return const SizedBox.shrink();
+    }
+
+    return ListTile(
+      leading: Container(
+        width: AppSpacing.avatarSm,
+        height: AppSpacing.avatarSm,
+        decoration: BoxDecoration(
+          color: currentColorSeed.color.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        ),
+        child: Icon(
+          Icons.color_lens,
+          color: currentColorSeed.color,
+        ),
+      ),
+      title: Text(
+        l10n.themeColor,
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+      subtitle: Text(
+        currentColorSeed.label,
+        style: Theme.of(context).textTheme.labelMedium,
+      ),
+      trailing: PopupMenuButton<ColorSeed>(
+        icon: const Icon(Icons.arrow_forward_ios, size: 16),
+        onSelected: (ColorSeed seed) {
+          ref.read(colorSeedProvider.notifier).setColorSeed(seed);
+        },
+        itemBuilder: (BuildContext context) {
+          return ColorSeed.values.map((seed) {
+            return PopupMenuItem<ColorSeed>(
+              value: seed,
+              child: Row(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: seed.color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(seed.label),
+                  if (currentColorSeed == seed) ...[
+                    const Spacer(),
+                    Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),
+                  ],
+                ],
+              ),
+            );
+          }).toList();
+        },
+      ),
+    );
+  }
+
+  Widget _buildLanguageSelector(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final currentLanguage = ref.watch(languageProvider);
     final languageName = TranslationService.supportedLanguages[currentLanguage] ?? 'English';
 
@@ -138,7 +191,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
       title: Text(
-        'Language',
+        l10n.language,
         style: Theme.of(context).textTheme.labelLarge,
       ),
       subtitle: Text(
@@ -170,15 +223,15 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildThemeSwitcher(BuildContext context, WidgetRef ref, ThemeMode currentMode) {
+  Widget _buildThemeSwitcher(BuildContext context, WidgetRef ref, ThemeMode currentMode, AppLocalizations l10n) {
     String getThemeLabel(ThemeMode mode) {
       switch (mode) {
         case ThemeMode.light:
-          return 'Light';
+          return l10n.themeLight;
         case ThemeMode.dark:
-          return 'Dark';
+          return l10n.themeDark;
         case ThemeMode.system:
-          return 'System default';
+          return l10n.themeSystem;
       }
     }
 
@@ -208,7 +261,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
       title: Text(
-        'Theme',
+        l10n.theme,
         style: Theme.of(context).textTheme.labelLarge,
       ),
       subtitle: Text(
@@ -227,7 +280,7 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 Icon(Icons.brightness_auto, size: 20),
                 const SizedBox(width: 12),
-                const Text('System default'),
+                Text(l10n.themeSystem),
                 if (currentMode == ThemeMode.system) ...[
                   const Spacer(),
                   Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),
@@ -241,7 +294,7 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 Icon(Icons.wb_sunny, size: 20),
                 const SizedBox(width: 12),
-                const Text('Light'),
+                Text(l10n.themeLight),
                 if (currentMode == ThemeMode.light) ...[
                   const Spacer(),
                   Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),
@@ -255,7 +308,7 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 Icon(Icons.nightlight_round, size: 20),
                 const SizedBox(width: 12),
-                const Text('Dark'),
+                Text(l10n.themeDark),
                 if (currentMode == ThemeMode.dark) ...[
                   const Spacer(),
                   Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),

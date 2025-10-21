@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # UI & Icons
   cupertino_icons: ^1.0.8
@@ -37,7 +39,7 @@ dependencies:
   cached_network_image: ^3.3.0
   
   # Utilities
-  intl: ^0.19.0
+  intl: ^0.20.2
   
   # Material You / Dynamic Colors
   dynamic_color: ^1.7.0
@@ -58,6 +60,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # Generate localization files
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

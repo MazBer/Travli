@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/api_providers.dart';
 import '../../core/providers/language_provider.dart';
@@ -58,10 +59,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final searchResults = ref.watch(citySearchResultsProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: Text(l10n.search),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,9 +73,40 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search for a city...',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                hintText: l10n.searchForCity,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          ref.read(citySearchQueryProvider.notifier).state = '';
+                          setState(() {});
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surfaceVariant,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(50), // Circular/pill shape
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
               ),
               onChanged: (value) {
                 ref.read(citySearchQueryProvider.notifier).state = value;
@@ -87,7 +120,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: Text(
-                'Cities',
+                l10n.searchResults,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
@@ -99,7 +132,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   if (cities.isEmpty) {
                     return Center(
                       child: Text(
-                        'No cities found',
+                        l10n.noCitiesFound,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),
@@ -129,7 +162,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Recent Searches',
+                      l10n.recentSearches,
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                     TextButton(

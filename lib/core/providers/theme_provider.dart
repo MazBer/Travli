@@ -1,43 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/theme_constants.dart';
 
-// Theme mode notifier
+/// Theme mode provider
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  return ThemeModeNotifier();
+});
+
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier() : super(ThemeMode.system) {
     _loadThemeMode();
   }
 
-  static const String _themeModeKey = 'theme_mode';
-
   Future<void> _loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();
-    final themeModeString = prefs.getString(_themeModeKey);
-    
-    if (themeModeString != null) {
-      state = ThemeMode.values.firstWhere(
-        (mode) => mode.toString() == themeModeString,
-        orElse: () => ThemeMode.system,
-      );
-    }
+    final themeModeString = prefs.getString('themeMode') ?? 'system';
+    state = _themeModeFromString(themeModeString);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    state = mode;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_themeModeKey, mode.toString());
+    await prefs.setString('themeMode', _themeModeToString(mode));
+    state = mode;
   }
 
-  Future<void> toggleTheme() async {
-    final newMode = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    await setThemeMode(newMode);
+  ThemeMode _themeModeFromString(String value) {
+    switch (value) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  String _themeModeToString(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return 'light';
+      case ThemeMode.dark:
+        return 'dark';
+      case ThemeMode.system:
+        return 'system';
+    }
   }
 }
 
-// Provider
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
-  (ref) => ThemeModeNotifier(),
-);
+/// Color seed provider
+final colorSeedProvider = StateNotifierProvider<ColorSeedNotifier, ColorSeed>((ref) {
+  return ColorSeedNotifier();
+});
+
+class ColorSeedNotifier extends StateNotifier<ColorSeed> {
+  ColorSeedNotifier() : super(ColorSeed.travliTeal) {
+    _loadColorSeed();
+  }
+
+  Future<void> _loadColorSeed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final colorIndex = prefs.getInt('colorSeed') ?? 0;
+    if (colorIndex >= 0 && colorIndex < ColorSeed.values.length) {
+      state = ColorSeed.values[colorIndex];
+    }
+  }
+
+  Future<void> setColorSeed(ColorSeed seed) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('colorSeed', seed.index);
+    state = seed;
+  }
+}
 
 // Color scheme preference notifier
 class ColorSchemeNotifier extends StateNotifier<bool> {
