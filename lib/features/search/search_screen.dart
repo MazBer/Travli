@@ -297,27 +297,34 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 final selectedPlacesProvider = StateProvider<Set<int>>((ref) => {});
 
 // City Places Screen
-class CityPlacesScreen extends ConsumerWidget {
+class CityPlacesScreen extends ConsumerStatefulWidget {
   final City city;
 
   const CityPlacesScreen({super.key, required this.city});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CityPlacesScreen> createState() => _CityPlacesScreenState();
+}
+
+class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Clear selection when entering this screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(selectedPlacesProvider.notifier).state = {};
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final placesAsync = ref.watch(cityPlacesProvider);
     final selectedPlaces = ref.watch(selectedPlacesProvider);
-    
-    // Clear selection when city changes
-    ref.listen(selectedCityProvider, (previous, next) {
-      if (previous?.id != next?.id) {
-        ref.read(selectedPlacesProvider.notifier).state = {};
-      }
-    });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(city.name),
+        title: Text(widget.city.name),
         actions: [
           if (selectedPlaces.isNotEmpty)
             TextButton(
@@ -386,7 +393,7 @@ class CityPlacesScreen extends ConsumerWidget {
           if (places.isEmpty) {
             return Center(
               child: Text(
-                'No places found in ${city.name}',
+                'No places found in ${widget.city.name}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
                 ),
@@ -394,7 +401,12 @@ class CityPlacesScreen extends ConsumerWidget {
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: EdgeInsets.only(
+              left: AppSpacing.lg,
+              right: AppSpacing.lg,
+              top: AppSpacing.lg,
+              bottom: selectedPlaces.length >= 2 ? 100 : AppSpacing.lg,
+            ),
             itemCount: places.length,
             itemBuilder: (context, index) {
               final place = places[index];

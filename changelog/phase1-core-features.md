@@ -57,6 +57,8 @@
 [2025-10-21 18:59] - Added animations (scale + shadow on selection)
 [2025-10-21 18:59] - Changed selection banner to compact capsule with icon
 [2025-10-21 18:59] - Auto-clear selection when switching cities
+[2025-10-21 19:04] - Fixed: Selection now properly clears on new city
+[2025-10-21 19:04] - Fixed: Removed empty space at bottom of list
 
 ## Status: 🔄 IN PROGRESS (70% complete)
 **Next:** Route optimization with ACO algorithm (Phase 1.4)
