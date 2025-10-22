@@ -343,12 +343,12 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
         children: [
           // Selection info capsule
           if (selectedPlaces.isNotEmpty)
-            Container(
-              margin: const EdgeInsets.only(
-                top: AppSpacing.md,
-                bottom: AppSpacing.sm,
-              ),
-              child: Center(
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(
+                  top: AppSpacing.md,
+                  bottom: AppSpacing.sm,
+                ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
@@ -429,7 +429,7 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
-                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                  margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                   padding: const EdgeInsets.all(AppSpacing.md),
                   transform: Matrix4.identity()..scale(isSelected ? 1.02 : 1.0),
                   decoration: BoxDecoration(
