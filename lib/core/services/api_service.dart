@@ -211,6 +211,12 @@ class ApiService {
           }
         });
         
+        // Debug: Print first few places with their localized names
+        if (places.length < 3 && localizedNames.isNotEmpty) {
+          print('Place: $name');
+          print('Localized names: $localizedNames');
+        }
+        
         // Calculate popularity score
         final popularityScore = _calculatePopularityScore(tags, element);
 

@@ -469,6 +469,14 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                     final isSelected = selectedPlaces.contains(index);
                     final currentLanguage = ref.watch(languageProvider);
                     final localizedName = place.getLocalizedName(currentLanguage);
+                    
+                    // Debug: Print for first place
+                    if (index == 0) {
+                      print('Current language: $currentLanguage');
+                      print('Place original name: ${place.name}');
+                      print('Localized names available: ${place.localizedNames.keys.toList()}');
+                      print('Localized name shown: $localizedName');
+                    }
               
                     return InkWell(
                       onTap: () {
