@@ -469,14 +469,6 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                     final place = displayedPlaces[index];
                     final isSelected = selectedPlaces.contains(index);
                     final localizedName = place.getLocalizedName(currentLanguage);
-                    
-                    // Debug: Print for first place
-                    if (index == 0) {
-                      print('Current language: $currentLanguage');
-                      print('Place original name: ${place.name}');
-                      print('Localized names available: ${place.localizedNames.keys.toList()}');
-                      print('Localized name shown: $localizedName');
-                    }
               
                     return InkWell(
                       onTap: () {
@@ -540,6 +532,15 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                                     localizedName,
                                     style: Theme.of(context).textTheme.labelLarge,
                                   ),
+                                  // Show original name if different from localized
+                                  if (localizedName != place.name)
+                                    Text(
+                                      place.name,
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.secondary,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
                                   Text(
                                     place.category,
                                     style: Theme.of(context).textTheme.labelMedium,

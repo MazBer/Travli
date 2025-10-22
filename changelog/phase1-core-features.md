@@ -70,6 +70,8 @@
 [2025-10-22 17:58] - Implemented multilingual place names from OSM
 [2025-10-22 17:58] - Places now display in user's selected language
 [2025-10-22 17:58] - Automatic fallback to original name if translation unavailable
+[2025-10-22 18:21] - Fixed: Moved language provider watch outside loop
+[2025-10-22 18:21] - Enhanced: Show original name in italics when translation exists
 
 ## Status: 🔄 IN PROGRESS (80% complete)
 **Next:** Route optimization with ACO algorithm (Phase 1.4)
