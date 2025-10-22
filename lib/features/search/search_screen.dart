@@ -331,6 +331,7 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
     final l10n = AppLocalizations.of(context)!;
     final placesAsync = ref.watch(cityPlacesProvider);
     final selectedPlaces = ref.watch(selectedPlacesProvider);
+    final currentLanguage = ref.watch(languageProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -467,7 +468,6 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                     
                     final place = displayedPlaces[index];
                     final isSelected = selectedPlaces.contains(index);
-                    final currentLanguage = ref.watch(languageProvider);
                     final localizedName = place.getLocalizedName(currentLanguage);
                     
                     // Debug: Print for first place
