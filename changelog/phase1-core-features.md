@@ -67,6 +67,9 @@
 [2025-10-22 17:50] - Places now sorted by popularity (15 factors considered)
 [2025-10-22 17:50] - Added pagination with "Load More" button (15 initial, +10 each)
 [2025-10-22 17:50] - Added place count indicator
+[2025-10-22 17:58] - Implemented multilingual place names from OSM
+[2025-10-22 17:58] - Places now display in user's selected language
+[2025-10-22 17:58] - Automatic fallback to original name if translation unavailable
 
-## Status: 🔄 IN PROGRESS (75% complete)
+## Status: 🔄 IN PROGRESS (80% complete)
 **Next:** Route optimization with ACO algorithm (Phase 1.4)

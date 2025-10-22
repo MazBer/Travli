@@ -202,12 +202,22 @@ class ApiService {
           category = 'Viewpoint';
         }
 
+        // Extract localized names
+        final localizedNames = <String, String>{};
+        tags.forEach((key, value) {
+          if (key.startsWith('name:') && value is String && value.isNotEmpty) {
+            final langCode = key.substring(5); // Extract language code after 'name:'
+            localizedNames[langCode] = value;
+          }
+        });
+        
         // Calculate popularity score
         final popularityScore = _calculatePopularityScore(tags, element);
 
         places.add(Place(
           cityId: cityId ?? 0,
           name: name,
+          localizedNames: localizedNames,
           category: category,
           latitude: lat,
           longitude: lon,

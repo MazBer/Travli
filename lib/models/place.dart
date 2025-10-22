@@ -1,7 +1,8 @@
 class Place {
   final int? id;
   final int cityId;
-  final String name;
+  final String name; // Default/original name
+  final Map<String, String> localizedNames; // Names in different languages (e.g., 'en': 'Colosseum', 'tr': 'Kolezyum')
   final String? description;
   final String category;
   final double latitude;
@@ -15,6 +16,7 @@ class Place {
     this.id,
     required this.cityId,
     required this.name,
+    this.localizedNames = const {},
     this.description,
     required this.category,
     required this.latitude,
@@ -24,6 +26,11 @@ class Place {
     this.address,
     this.isSelected = false,
   });
+  
+  /// Get name in preferred language, fallback to default name
+  String getLocalizedName(String languageCode) {
+    return localizedNames[languageCode] ?? name;
+  }
 
   // Convert Place to Map for database
   Map<String, dynamic> toMap() {
@@ -64,6 +71,7 @@ class Place {
     int? id,
     int? cityId,
     String? name,
+    Map<String, String>? localizedNames,
     String? description,
     String? category,
     double? latitude,
@@ -77,6 +85,7 @@ class Place {
       id: id ?? this.id,
       cityId: cityId ?? this.cityId,
       name: name ?? this.name,
+      localizedNames: localizedNames ?? this.localizedNames,
       description: description ?? this.description,
       category: category ?? this.category,
       latitude: latitude ?? this.latitude,

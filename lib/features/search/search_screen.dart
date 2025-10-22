@@ -467,6 +467,8 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                     
                     final place = displayedPlaces[index];
                     final isSelected = selectedPlaces.contains(index);
+                    final currentLanguage = ref.watch(languageProvider);
+                    final localizedName = place.getLocalizedName(currentLanguage);
               
                     return InkWell(
                       onTap: () {
@@ -527,7 +529,7 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    place.name,
+                                    localizedName,
                                     style: Theme.of(context).textTheme.labelLarge,
                                   ),
                                   Text(
