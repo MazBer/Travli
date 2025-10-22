@@ -174,7 +174,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**Your Name**
+**Mazhar Berk**
 - GitHub: [@MazBer](https://github.com/MazBer)
 
 ## 🙏 Acknowledgments
