@@ -343,8 +343,11 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
         children: [
           // Selection info capsule
           if (selectedPlaces.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+            Container(
+              margin: const EdgeInsets.only(
+                top: AppSpacing.md,
+                bottom: AppSpacing.sm,
+              ),
               child: Center(
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
@@ -404,8 +407,8 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
             padding: EdgeInsets.only(
               left: AppSpacing.lg,
               right: AppSpacing.lg,
-              top: AppSpacing.lg,
-              bottom: selectedPlaces.length >= 2 ? 100 : AppSpacing.lg,
+              top: AppSpacing.sm,
+              bottom: selectedPlaces.length >= 2 ? 80 : AppSpacing.lg,
             ),
             itemCount: places.length,
             itemBuilder: (context, index) {

@@ -59,6 +59,8 @@
 [2025-10-21 18:59] - Auto-clear selection when switching cities
 [2025-10-21 19:04] - Fixed: Selection now properly clears on new city
 [2025-10-21 19:04] - Fixed: Removed empty space at bottom of list
+[2025-10-22 17:34] - Fixed: Removed rectangular box around capsule
+[2025-10-22 17:34] - Fixed: Optimized spacing between capsule and list
 
 ## Status: 🔄 IN PROGRESS (70% complete)
 **Next:** Route optimization with ACO algorithm (Phase 1.4)
