@@ -307,12 +307,22 @@ class CityPlacesScreen extends ConsumerStatefulWidget {
 }
 
 class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
+  int _displayCount = 15; // Initial number of places to show
+  static const int _loadMoreIncrement = 10; // Load 10 more each time
+  
   @override
   void initState() {
     super.initState();
     // Clear selection when entering this screen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(selectedPlacesProvider.notifier).state = {};
+      _displayCount = 15; // Reset display count
+    });
+  }
+  
+  void _loadMore() {
+    setState(() {
+      _displayCount += _loadMoreIncrement;
     });
   }
 
@@ -392,8 +402,8 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
           // Places list
           Expanded(
             child: placesAsync.when(
-        data: (places) {
-          if (places.isEmpty) {
+        data: (allPlaces) {
+          if (allPlaces.isEmpty) {
             return Center(
               child: Text(
                 'No places found in ${widget.city.name}',
@@ -403,113 +413,159 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
               ),
             );
           }
-          return ListView.builder(
-            padding: EdgeInsets.only(
-              left: AppSpacing.lg,
-              right: AppSpacing.lg,
-              top: AppSpacing.sm,
-              bottom: selectedPlaces.length >= 2 ? 80 : AppSpacing.lg,
-            ),
-            itemCount: places.length,
-            itemBuilder: (context, index) {
-              final place = places[index];
-              final isSelected = selectedPlaces.contains(index);
-              
-              return InkWell(
-                onTap: () {
-                  final current = ref.read(selectedPlacesProvider);
-                  if (isSelected) {
-                    ref.read(selectedPlacesProvider.notifier).state = 
-                      current.where((id) => id != index).toSet();
-                  } else {
-                    ref.read(selectedPlacesProvider.notifier).state = 
-                      {...current, index};
-                  }
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  transform: Matrix4.identity()..scale(isSelected ? 1.02 : 1.0),
-                  decoration: BoxDecoration(
-                    color: isSelected 
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    border: isSelected
-                      ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
-                        )
-                      : null,
-                    boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                      : null,
+          
+          // Limit displayed places based on _displayCount
+          final displayedPlaces = allPlaces.take(_displayCount).toList();
+          final hasMore = allPlaces.length > _displayCount;
+          
+          return Column(
+            children: [
+              // Places count indicator
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Text(
+                  l10n.showingPlaces(displayedPlaces.length),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: AppSpacing.avatarMd,
-                        height: AppSpacing.avatarMd,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                        ),
-                        child: Icon(
-                          Icons.place,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.lg),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              place.name,
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                            Text(
-                              place.category,
-                              style: Theme.of(context).textTheme.labelMedium,
-                            ),
-                            if (place.address != null)
-                              Text(
-                                place.address!,
-                                style: Theme.of(context).textTheme.labelSmall,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              
+              // Places list
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.only(
+                    left: AppSpacing.lg,
+                    right: AppSpacing.lg,
+                    top: AppSpacing.sm,
+                    bottom: selectedPlaces.length >= 2 ? 80 : AppSpacing.lg,
+                  ),
+                  itemCount: displayedPlaces.length + (hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    // Load More button at the end
+                    if (index == displayedPlaces.length) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                        child: Center(
+                          child: OutlinedButton.icon(
+                            onPressed: _loadMore,
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.loadMore),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.xl,
+                                vertical: AppSpacing.md,
                               ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    final place = displayedPlaces[index];
+                    final isSelected = selectedPlaces.contains(index);
+              
+                    return InkWell(
+                      onTap: () {
+                        final current = ref.read(selectedPlacesProvider);
+                        if (isSelected) {
+                          ref.read(selectedPlacesProvider.notifier).state = 
+                            current.where((id) => id != index).toSet();
+                        } else {
+                          ref.read(selectedPlacesProvider.notifier).state = 
+                            {...current, index};
+                        }
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        transform: Matrix4.identity()..scale(isSelected ? 1.02 : 1.0),
+                        decoration: BoxDecoration(
+                          color: isSelected 
+                            ? Theme.of(context).colorScheme.primaryContainer
+                            : Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          border: isSelected
+                            ? Border.all(
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 2,
+                              )
+                            : null,
+                          boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : null,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: AppSpacing.avatarMd,
+                              height: AppSpacing.avatarMd,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              ),
+                              child: Icon(
+                                Icons.place,
+                                size: 24,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.lg),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    place.name,
+                                    style: Theme.of(context).textTheme.labelLarge,
+                                  ),
+                                  Text(
+                                    place.category,
+                                    style: Theme.of(context).textTheme.labelMedium,
+                                  ),
+                                  if (place.address != null)
+                                    Text(
+                                      place.address!,
+                                      style: Theme.of(context).textTheme.labelSmall,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
+                              ),
+                            ),
+                            // Checkbox on the right
+                            Checkbox(
+                              value: isSelected,
+                              onChanged: (value) {
+                                final current = ref.read(selectedPlacesProvider);
+                                if (value == true) {
+                                  ref.read(selectedPlacesProvider.notifier).state = 
+                                    {...current, index};
+                                } else {
+                                  ref.read(selectedPlacesProvider.notifier).state = 
+                                    current.where((id) => id != index).toSet();
+                                }
+                              },
+                            ),
                           ],
                         ),
                       ),
-                      // Checkbox on the right
-                      Checkbox(
-                        value: isSelected,
-                        onChanged: (value) {
-                          final current = ref.read(selectedPlacesProvider);
-                          if (value == true) {
-                            ref.read(selectedPlacesProvider.notifier).state = 
-                              {...current, index};
-                          } else {
-                            ref.read(selectedPlacesProvider.notifier).state = 
-                              current.where((id) => id != index).toSet();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

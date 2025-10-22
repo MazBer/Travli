@@ -43,5 +43,7 @@
   "noCitiesFound": "Şehir bulunamadı",
   "clearSelection": "Temizle",
   "placesSelected": "yer seçildi",
-  "generatingRoute": "Optimize edilmiş rota oluşturuluyor..."
+  "generatingRoute": "Optimize edilmiş rota oluşturuluyor...",
+  "loadMore": "Daha Fazla Yer Yükle",
+  "showingPlaces": "{count} yer gösteriliyor"
 }

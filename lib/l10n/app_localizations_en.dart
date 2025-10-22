@@ -136,4 +136,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get generatingRoute => 'Generating optimized route...';
+
+  @override
+  String get loadMore => 'Load More Places';
+
+  @override
+  String showingPlaces(int count) {
+    return 'Showing $count places';
+  }
 }

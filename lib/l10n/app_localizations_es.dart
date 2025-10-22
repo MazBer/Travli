@@ -136,4 +136,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get generatingRoute => 'Generando ruta optimizada...';
+
+  @override
+  String get loadMore => 'Cargar más lugares';
+
+  @override
+  String showingPlaces(int count) {
+    return 'Mostrando $count lugares';
+  }
 }

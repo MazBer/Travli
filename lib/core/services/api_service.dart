@@ -156,7 +156,7 @@ class ApiService {
           way["tourism"="museum"](around:$radius,${city.latitude},${city.longitude});
           way["historic"](around:$radius,${city.latitude},${city.longitude});
         );
-        out center 50;
+        out center 100;
       ''';
 
       final response = await _dio.post(
@@ -202,6 +202,9 @@ class ApiService {
           category = 'Viewpoint';
         }
 
+        // Calculate popularity score
+        final popularityScore = _calculatePopularityScore(tags, element);
+
         places.add(Place(
           cityId: cityId ?? 0,
           name: name,
@@ -210,23 +213,18 @@ class ApiService {
           longitude: lon,
           description: tags['description'] as String?,
           address: _buildAddress(tags),
+          rating: popularityScore,
         ));
       }
 
-      // Sort by distance from city center
+      // Sort by popularity (rating field contains popularity score)
       places.sort((a, b) {
-        final distA = _calculateDistance(
-          city.latitude, city.longitude,
-          a.latitude, a.longitude,
-        );
-        final distB = _calculateDistance(
-          city.latitude, city.longitude,
-          b.latitude, b.longitude,
-        );
-        return distA.compareTo(distB);
+        final scoreA = a.rating ?? 0.0;
+        final scoreB = b.rating ?? 0.0;
+        return scoreB.compareTo(scoreA); // Descending order (highest first)
       });
 
-      return places.take(30).toList(); // Limit to 30 places
+      return places; // Return all places for pagination
     } catch (e) {
       print('Error fetching places: $e');
       return [];
@@ -246,10 +244,113 @@ class ApiService {
     return parts.isEmpty ? null : parts.join(' ');
   }
 
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    // Simple distance calculation (Haversine formula simplified)
-    final dLat = (lat2 - lat1) * 111.32; // km per degree latitude
-    final dLon = (lon2 - lon1) * 111.32 * 0.9; // approximate
-    return (dLat * dLat + dLon * dLon);
+  /// Calculate popularity score based on OSM tags and attributes
+  /// Higher score = more popular/important attraction
+  double _calculatePopularityScore(Map<String, dynamic> tags, Map<String, dynamic> element) {
+    double score = 0.0;
+    
+    // 1. Wikipedia presence (very strong indicator of importance)
+    if (tags['wikipedia'] != null || tags['wikidata'] != null) {
+      score += 50.0;
+    }
+    
+    // 2. UNESCO World Heritage Site (extremely important)
+    if (tags['heritage'] == '1' || tags['heritage:operator'] == 'whc') {
+      score += 100.0;
+    }
+    
+    // 3. Tourism importance level
+    final tourism = tags['tourism'];
+    if (tourism == 'attraction') {
+      final importance = tags['importance'];
+      if (importance == 'international') score += 80.0;
+      else if (importance == 'national') score += 60.0;
+      else if (importance == 'regional') score += 40.0;
+      else score += 30.0; // Default attraction
+    } else if (tourism == 'museum') {
+      score += 45.0;
+    } else if (tourism == 'viewpoint') {
+      score += 25.0;
+    }
+    
+    // 4. Historic significance
+    final historic = tags['historic'];
+    if (historic != null) {
+      if (historic == 'castle' || historic == 'monument') score += 50.0;
+      else if (historic == 'archaeological_site') score += 45.0;
+      else if (historic == 'ruins') score += 40.0;
+      else if (historic == 'memorial') score += 35.0;
+      else score += 30.0;
+    }
+    
+    // 5. Religious importance
+    if (tags['amenity'] == 'place_of_worship') {
+      // Major religious sites
+      if (tags['name:en']?.toLowerCase().contains('cathedral') == true ||
+          tags['name']?.toLowerCase().contains('cathedral') == true) {
+        score += 45.0;
+      } else if (tags['name:en']?.toLowerCase().contains('basilica') == true ||
+                 tags['name']?.toLowerCase().contains('basilica') == true) {
+        score += 40.0;
+      } else {
+        score += 30.0;
+      }
+    }
+    
+    // 6. Building significance
+    final building = tags['building'];
+    if (building == 'cathedral' || building == 'basilica') score += 40.0;
+    else if (building == 'palace' || building == 'castle') score += 45.0;
+    
+    // 7. Architectural style (indicates significance)
+    if (tags['architectural_style'] != null) {
+      score += 20.0;
+    }
+    
+    // 8. Opening hours (indicates active tourist site)
+    if (tags['opening_hours'] != null) {
+      score += 15.0;
+    }
+    
+    // 9. Entrance fee (indicates managed attraction)
+    if (tags['fee'] == 'yes' || tags['charge'] != null) {
+      score += 10.0;
+    }
+    
+    // 10. Website presence (indicates professional management)
+    if (tags['website'] != null || tags['contact:website'] != null) {
+      score += 10.0;
+    }
+    
+    // 11. Image availability
+    if (tags['image'] != null || tags['wikimedia_commons'] != null) {
+      score += 8.0;
+    }
+    
+    // 12. Description presence (indicates documentation)
+    if (tags['description'] != null || tags['description:en'] != null) {
+      score += 5.0;
+    }
+    
+    // 13. Operator (managed sites are usually more significant)
+    if (tags['operator'] != null) {
+      score += 5.0;
+    }
+    
+    // 14. Way vs Node (ways are usually larger, more significant structures)
+    if (element['type'] == 'way') {
+      score += 10.0;
+    }
+    
+    // 15. Bonus for having multiple language names (international significance)
+    int languageCount = 0;
+    tags.forEach((key, value) {
+      if (key.startsWith('name:')) languageCount++;
+    });
+    if (languageCount >= 5) score += 15.0;
+    else if (languageCount >= 3) score += 10.0;
+    else if (languageCount >= 1) score += 5.0;
+    
+    return score;
   }
 }

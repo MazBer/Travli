@@ -136,4 +136,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get generatingRoute => 'Génération de l\'itinéraire optimisé...';
+
+  @override
+  String get loadMore => 'Charger plus de lieux';
+
+  @override
+  String showingPlaces(int count) {
+    return 'Affichage de $count lieux';
+  }
 }

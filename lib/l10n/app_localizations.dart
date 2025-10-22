@@ -361,6 +361,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Generating optimized route...'**
   String get generatingRoute;
+
+  /// Load more button
+  ///
+  /// In en, this message translates to:
+  /// **'Load More Places'**
+  String get loadMore;
+
+  /// Showing places count
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {count} places'**
+  String showingPlaces(int count);
 }
 
 class _AppLocalizationsDelegate

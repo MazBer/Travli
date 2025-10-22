@@ -214,5 +214,20 @@
   "generatingRoute": "Generating optimized route...",
   "@generatingRoute": {
     "description": "Generating route message"
+  },
+  
+  "loadMore": "Load More Places",
+  "@loadMore": {
+    "description": "Load more button"
+  },
+  
+  "showingPlaces": "Showing {count} places",
+  "@showingPlaces": {
+    "description": "Showing places count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

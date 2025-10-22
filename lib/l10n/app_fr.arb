@@ -43,5 +43,7 @@
   "noCitiesFound": "Aucune ville trouvée",
   "clearSelection": "Effacer",
   "placesSelected": "lieux sélectionnés",
-  "generatingRoute": "Génération de l'itinéraire optimisé..."
+  "generatingRoute": "Génération de l'itinéraire optimisé...",
+  "loadMore": "Charger plus de lieux",
+  "showingPlaces": "Affichage de {count} lieux"
 }

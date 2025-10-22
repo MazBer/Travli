@@ -136,4 +136,12 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get generatingRoute => 'Optimize edilmiş rota oluşturuluyor...';
+
+  @override
+  String get loadMore => 'Daha Fazla Yer Yükle';
+
+  @override
+  String showingPlaces(int count) {
+    return '$count yer gösteriliyor';
+  }
 }

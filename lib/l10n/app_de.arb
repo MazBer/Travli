@@ -43,5 +43,7 @@
   "noCitiesFound": "Keine Städte gefunden",
   "clearSelection": "Löschen",
   "placesSelected": "Orte ausgewählt",
-  "generatingRoute": "Optimierte Route wird erstellt..."
+  "generatingRoute": "Optimierte Route wird erstellt...",
+  "loadMore": "Mehr Orte laden",
+  "showingPlaces": "{count} Orte werden angezeigt"
 }
