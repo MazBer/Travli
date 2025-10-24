@@ -216,23 +216,8 @@ class ApiService {
         }
         
         if (i == _overpassServers.length - 1) {
-          // Last server also failed
-          print('All servers failed!');
-          
-          // Provide user-friendly error message
-          if (isDnsError) {
-            throw Exception(
-              'Cannot connect to map servers (DNS Error).\n\n'
-              'Please try:\n'
-              '• Connect to WiFi instead of mobile data\n'
-              '• Restart your phone\n'
-              '• Check if other apps can access internet\n'
-              '• Disable VPN if active\n\n'
-              'Note: Some mobile networks block map services.'
-            );
-          }
-          
-          rethrow;
+          // Last server also failed - don't throw yet, let outer catch handle it
+          print('All servers failed! Will try offline database...');
         }
         // Try next server
         continue;
@@ -240,10 +225,9 @@ class ApiService {
     }
     
     if (response == null) {
-      throw Exception(
-        'All map servers are unavailable.\n'
-        'Please check your internet connection and try again.'
-      );
+      // Don't throw here - let it fall through to offline fallback
+      print('All API servers failed, proceeding to offline fallback');
+      throw Exception('All API servers unavailable');
     }
     
     print('Response data type: ${response.data.runtimeType}');
@@ -344,13 +328,20 @@ class ApiService {
       
       if (offlinePlaces.isNotEmpty) {
         print('✓ Found ${offlinePlaces.length} places in offline database');
+        print('Using offline data for ${city.name}');
         return offlinePlaces;
       }
       
       print('✗ No offline data available for ${city.name}');
       
-      // Rethrow original error if no offline data
-      rethrow;
+      // Provide helpful error message
+      throw Exception(
+        'Cannot load places for ${city.name}.\n\n'
+        'Network error and no offline data available.\n\n'
+        'Cities with offline data:\n'
+        'Rome, Paris, London, Barcelona, Istanbul,\n'
+        'Amsterdam, Berlin, Vienna, Prague, Athens'
+      );
     }
   }
 
