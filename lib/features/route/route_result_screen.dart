@@ -237,7 +237,19 @@ class RouteResultScreen extends ConsumerWidget {
     if (result.route.isEmpty) return;
 
     try {
-      // Build Google Maps URL with directions
+      // For single place, just show the location
+      if (result.route.length == 1) {
+        final place = result.route.first;
+        final url = 'https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}';
+        final uri = Uri.parse(url);
+        
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+        return;
+      }
+      
+      // Build Google Maps URL with directions for multiple places
       final origin = result.route.first;
       final destination = result.route.last;
       
@@ -258,6 +270,8 @@ class RouteResultScreen extends ConsumerWidget {
       }
       
       url += '&travelmode=driving';
+      
+      print('Opening Google Maps URL: $url'); // Debug
       
       final uri = Uri.parse(url);
       

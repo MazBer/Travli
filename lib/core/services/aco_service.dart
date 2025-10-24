@@ -170,7 +170,8 @@ class AcoService {
       currentCity = nextCity;
     }
 
-    tour.add(tour[0]); // Complete the tour (return to start)
+    // Don't return to start for tourism routes
+    // tour.add(tour[0]); // Removed: We end at the last place
 
     return tour;
   }
@@ -224,6 +225,7 @@ class AcoService {
   double _calculateTourLength(List<int> tour, List<List<double>> distanceMatrix) {
     double length = 0.0;
 
+    // Calculate distance for the path (not including return to start)
     for (int i = 0; i < tour.length - 1; i++) {
       length += distanceMatrix[tour[i]][tour[i + 1]];
     }
@@ -248,7 +250,7 @@ class AcoService {
       }
     }
 
-    // Deposit pheromones from all ants
+    // Deposit pheromones from all ants (only for edges in the path)
     for (int ant = 0; ant < tours.length; ant++) {
       final tour = tours[ant];
       final length = tourLengths[ant];
