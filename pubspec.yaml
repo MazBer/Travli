@@ -2,7 +2,7 @@ name: travli
 description: "Smart Travel Route Planner - Visit more, travel less"
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 0.0.1+1
 
 environment:
   sdk: ^3.9.2
@@ -41,6 +41,7 @@ dependencies:
   # Utilities
   intl: ^0.20.2
   url_launcher: ^6.2.5
+  package_info_plus: ^8.0.0
   
   # Material You / Dynamic Colors
   dynamic_color: ^1.7.0

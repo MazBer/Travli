@@ -32,7 +32,7 @@ class ApiService {
       );
 
       final List<dynamic> results = response.data;
-      final cities = <City>[];
+      var cities = <City>[]; // Changed to var to allow reassignment
       final seenCities = <String>{};
 
       for (var result in results) {
@@ -92,15 +92,15 @@ class ApiService {
 
       print('Sorted cities: ${cities.map((c) => '${c.name} (${_getCityPopularityScore(c.name)})').join(', ')}');
 
-      // If API returned no results, use offline database
+      // Limit to 10 unique cities after sorting
+      if (cities.length > 10) {
+        cities = cities.sublist(0, 10);
+      }
+
+      // If API returned no results, use offline database as fallback
       if (cities.isEmpty) {
         print('API returned no results, using offline database...');
         return PopularCities.search(query);
-      }
-      
-      // Limit to 10 unique cities after sorting
-      if (cities.length > 10) {
-        return cities.sublist(0, 10);
       }
 
       return cities;
@@ -108,7 +108,7 @@ class ApiService {
       print('Error searching cities from API: $e');
       print('Falling back to offline city database...');
       
-      // Fallback to offline popular cities
+      // Fallback to offline popular cities only on error
       return PopularCities.search(query);
     }
   }

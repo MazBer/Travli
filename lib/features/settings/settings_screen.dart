@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
@@ -69,6 +70,61 @@ class SettingsScreen extends ConsumerWidget {
             context,
             icon: Icons.login,
             title: l10n.signIn,
+          ),
+          
+          // Info section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
+            child: Text(
+              'Info',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ),
+          
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+              
+              final info = snapshot.data!;
+              final buildDate = DateTime.now().toString().split(' ')[0]; // Current date as placeholder
+              
+              return Column(
+                children: [
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.info_outline,
+                    title: 'Version',
+                    subtitle: '${info.version} (${info.buildNumber})',
+                  ),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.calendar_today,
+                    title: 'Build Date',
+                    subtitle: buildDate,
+                  ),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.code,
+                    title: 'App Name',
+                    subtitle: info.appName,
+                  ),
+                  _buildSettingItem(
+                    context,
+                    icon: Icons.tag,
+                    title: 'Package',
+                    subtitle: info.packageName,
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
