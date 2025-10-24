@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../../models/city.dart';
 import '../../models/place.dart';
 import '../data/popular_cities.dart';
+import '../data/offline_places.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -332,12 +333,23 @@ class ApiService {
       
       return places; // Return all places for pagination
     } catch (e, stackTrace) {
-      print('!!! ERROR FETCHING PLACES !!!');
+      print('!!! ERROR FETCHING PLACES FROM API !!!');
       print('Error: $e');
       print('Stack trace: $stackTrace');
       print('City: ${city.name} (${city.latitude}, ${city.longitude})');
       
-      // Rethrow to see error in UI
+      // Try offline database as last resort
+      print('Attempting to use offline places database...');
+      final offlinePlaces = OfflinePlaces.getPlacesForCity(city.name, cityId ?? 0);
+      
+      if (offlinePlaces.isNotEmpty) {
+        print('✓ Found ${offlinePlaces.length} places in offline database');
+        return offlinePlaces;
+      }
+      
+      print('✗ No offline data available for ${city.name}');
+      
+      // Rethrow original error if no offline data
       rethrow;
     }
   }
