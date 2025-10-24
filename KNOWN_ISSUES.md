@@ -1,28 +1,53 @@
 # Known Issues
 
-## 1. Search System Shows "No Cities Found" on Real Device
+## 1. Places Not Loading on Mobile Network (DNS Error)
 
-**Status:** 🔴 CRITICAL - Needs Fix
+**Status:** 🔴 CRITICAL - DNS/Network Issue
 
 **Date Reported:** 2025-10-24
+**Date Diagnosed:** 2025-10-24
 
 ### Problem Description
-The city search doesn't work on real devices (APK build), always showing "No cities found" even with valid queries.
+Places don't load on real devices when using mobile data. Shows error: "Failed host lookup: 'overpass.openstreetmap.ru'"
 
-### Root Cause
-- Search relies on Nominatim API (https://nominatim.openstreetmap.org)
-- API may be rate-limited or blocked
-- No offline fallback for popular cities
-- Network timeout issues on mobile data
+### Root Cause - IDENTIFIED ✓
+**DNS Resolution Failure on Mobile Networks**
 
-### Solution Required
-1. Add offline database of popular tourist cities
-2. Implement fallback mechanism when API fails
-3. Add better error messages
-4. Consider using local SQLite database with pre-populated cities
+Error details:
+```
+DioException [connection error]: The connection errored: Failed host lookup
+SocketException: Failed host lookup: 'overpass.openstreetmap.ru'
+OS Error: No address associated with hostname, errno = 7
+```
+
+**Why it works in emulator but not on phone:**
+- Emulator uses PC's DNS (usually works fine)
+- Mobile networks may have:
+  - Restricted DNS servers
+  - Blocked access to OpenStreetMap servers
+  - Firewall rules blocking map services
+  - DNS filtering/censorship
+
+### Current Workarounds
+1. ✅ Multiple server fallback (3 servers)
+2. ✅ Better error messages
+3. ✅ User-friendly DNS error explanation
+
+### Solutions to Try
+1. **Use WiFi instead of mobile data** ← Most reliable
+2. Change phone DNS to Google DNS (8.8.8.8)
+3. Use VPN (might help or make worse)
+4. Contact mobile carrier about blocked services
+
+### Long-term Solutions Needed
+1. Add offline place database for major cities
+2. Use IP addresses instead of hostnames
+3. Implement custom DNS resolver
+4. Add proxy/mirror servers
+5. Cache previously loaded places
 
 ### Priority
-**CRITICAL** - Breaks core functionality on real devices
+**CRITICAL** - Breaks core functionality on mobile networks
 
 ---
 

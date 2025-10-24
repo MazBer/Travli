@@ -203,9 +203,34 @@ class ApiService {
         
       } catch (e) {
         print('✗ Failed with server $serverUrl: $e');
+        
+        // Check if it's a DNS/network error
+        final errorMsg = e.toString().toLowerCase();
+        final isDnsError = errorMsg.contains('host lookup') || 
+                          errorMsg.contains('socketexception') ||
+                          errorMsg.contains('network');
+        
+        if (isDnsError) {
+          print('⚠ DNS/Network error detected');
+        }
+        
         if (i == _overpassServers.length - 1) {
           // Last server also failed
           print('All servers failed!');
+          
+          // Provide user-friendly error message
+          if (isDnsError) {
+            throw Exception(
+              'Cannot connect to map servers (DNS Error).\n\n'
+              'Please try:\n'
+              '• Connect to WiFi instead of mobile data\n'
+              '• Restart your phone\n'
+              '• Check if other apps can access internet\n'
+              '• Disable VPN if active\n\n'
+              'Note: Some mobile networks block map services.'
+            );
+          }
+          
           rethrow;
         }
         // Try next server
@@ -214,7 +239,10 @@ class ApiService {
     }
     
     if (response == null) {
-      throw Exception('All Overpass API servers failed');
+      throw Exception(
+        'All map servers are unavailable.\n'
+        'Please check your internet connection and try again.'
+      );
     }
     
     print('Response data type: ${response.data.runtimeType}');
