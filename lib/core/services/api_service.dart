@@ -149,6 +149,11 @@ class ApiService {
 
   /// Get places/attractions for a city
   Future<List<Place>> getPlacesForCity(City city, {int? cityId}) async {
+    print('=== FETCHING PLACES FOR CITY ===');
+    print('City: ${city.name}');
+    print('Coordinates: ${city.latitude}, ${city.longitude}');
+    print('City ID: $cityId');
+    
     try {
       // Define the search radius (in meters)
       const radius = 10000; // 10km
@@ -169,24 +174,43 @@ class ApiService {
         out center 100;
       ''';
 
+      print('Sending request to Overpass API...');
+      print('URL: $_overpassBaseUrl');
+      
       final response = await _dio.post(
         _overpassBaseUrl,
         data: query,
         options: Options(
           contentType: 'application/x-www-form-urlencoded',
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
         ),
       );
+      
+      print('Response status: ${response.statusCode}');
+      print('Response data type: ${response.data.runtimeType}');
 
       final data = response.data as Map<String, dynamic>;
       final elements = data['elements'] as List<dynamic>? ?? [];
+      
+      print('Number of elements received: ${elements.length}');
+      
       final places = <Place>[];
 
       for (var element in elements) {
         final tags = element['tags'] as Map<String, dynamic>?;
-        if (tags == null) continue;
+        if (tags == null) {
+          print('Skipping element: no tags');
+          continue;
+        }
 
         final name = tags['name'] as String?;
-        if (name == null || name.isEmpty) continue;
+        if (name == null || name.isEmpty) {
+          print('Skipping element: no name');
+          continue;
+        }
+        
+        print('Processing place: $name');
 
         // Get coordinates
         double lat, lon;
@@ -244,10 +268,18 @@ class ApiService {
         return scoreB.compareTo(scoreA); // Descending order (highest first)
       });
 
+      print('Total places processed: ${places.length}');
+      print('=== PLACES FETCH COMPLETE ===');
+      
       return places; // Return all places for pagination
-    } catch (e) {
-      print('Error fetching places: $e');
-      return [];
+    } catch (e, stackTrace) {
+      print('!!! ERROR FETCHING PLACES !!!');
+      print('Error: $e');
+      print('Stack trace: $stackTrace');
+      print('City: ${city.name} (${city.latitude}, ${city.longitude})');
+      
+      // Rethrow to see error in UI
+      rethrow;
     }
   }
 
