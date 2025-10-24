@@ -275,17 +275,35 @@ class RouteResultScreen extends ConsumerWidget {
       
       final uri = Uri.parse(url);
       
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Could not open Google Maps'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
+      // Try to launch with external app first (Google Maps)
+      bool launched = false;
+      try {
+        if (await canLaunchUrl(uri)) {
+          launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
         }
+      } catch (e) {
+        print('Failed to launch with external app: $e');
+      }
+      
+      // If external app failed, try browser
+      if (!launched) {
+        try {
+          print('Trying to open in browser...');
+          launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+        } catch (e) {
+          print('Failed to launch in browser: $e');
+        }
+      }
+      
+      // Show error if both methods failed
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Could not open Google Maps. Please install Google Maps app.'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 5),
+          ),
+        );
       }
     } catch (e) {
       if (context.mounted) {
