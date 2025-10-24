@@ -4,8 +4,10 @@ import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/api_providers.dart';
 import '../../core/providers/language_provider.dart';
+import '../../core/providers/aco_provider.dart';
 import '../../core/services/search_history_service.dart';
 import '../../models/city.dart';
+import '../route/route_result_screen.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
@@ -616,14 +618,60 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: FilledButton(
-                onPressed: () {
-                  // TODO: Navigate to route generation
+                onPressed: () async {
+                  // Show loading indicator
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(l10n.generatingRoute),
-                      duration: const Duration(seconds: 2),
+                      content: Row(
+                        children: [
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          const SizedBox(width: 16),
+                          Text(l10n.generatingRoute),
+                        ],
+                      ),
+                      duration: const Duration(seconds: 30),
                     ),
                   );
+
+                  try {
+                    // Get selected places
+                    final placesAsync = await ref.read(cityPlacesProvider.future);
+                    final selectedIndices = selectedPlaces.toList();
+                    final selectedPlacesList = selectedIndices
+                        .map((index) => placesAsync[index])
+                        .toList();
+
+                    // Run ACO algorithm
+                    final acoService = ref.read(acoServiceProvider);
+                    final result = await acoService.calculateOptimalRoute(selectedPlacesList);
+
+                    // Hide loading snackbar
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                      // Navigate to result screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RouteResultScreen(result: result),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error generating route: $e'),
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      );
+                    }
+                  }
                 },
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
