@@ -1,6 +1,82 @@
 # Known Issues
 
-## Multilingual Place Names Not Displaying Correctly
+## 1. Search System Shows "No Cities Found" on Real Device
+
+**Status:** 🔴 CRITICAL - Needs Fix
+
+**Date Reported:** 2025-10-24
+
+### Problem Description
+The city search doesn't work on real devices (APK build), always showing "No cities found" even with valid queries.
+
+### Root Cause
+- Search relies on Nominatim API (https://nominatim.openstreetmap.org)
+- API may be rate-limited or blocked
+- No offline fallback for popular cities
+- Network timeout issues on mobile data
+
+### Solution Required
+1. Add offline database of popular tourist cities
+2. Implement fallback mechanism when API fails
+3. Add better error messages
+4. Consider using local SQLite database with pre-populated cities
+
+### Priority
+**CRITICAL** - Breaks core functionality on real devices
+
+---
+
+## 2. City and Place Names Not Showing in Selected Language
+
+**Status:** 🔴 ACTIVE - Partially Implemented
+
+**Date Reported:** 2025-10-24
+
+### Problem Description
+- City names always show in their original language (e.g., "Roma" instead of "Rome")
+- Place names sometimes show in original language even when translations exist
+- Search results don't respect user's language preference
+
+### Root Cause Analysis
+
+**For Cities:**
+- Nominatim API returns city names in local language
+- No translation layer for city names
+- City model doesn't have localized names
+
+**For Places:**
+- Implementation exists but not working correctly
+- `getLocalizedName()` method returns original name even when translations exist
+- Debug logs show: `Available translations: {es: ..., fr: ...}` but `en` is missing
+- Language code mismatch or timing issue
+
+### Evidence from Logs
+```
+I/flutter: Original: Catacombe di San Sebastiano
+I/flutter: Language: en
+I/flutter: Available translations: {es: ..., fr: ..., ru: ...}
+I/flutter: Localized name: Catacombe di San Sebastiano  ← Should be translated
+```
+
+### Solution Required
+
+**For Cities:**
+1. Add city name translations to database
+2. Use Wikidata or similar for city name translations
+3. Implement `getLocalizedName()` for City model
+
+**For Places:**
+1. Debug why `localizedNames` map lookup fails
+2. Verify map key format matches language code
+3. Add fallback to English if user's language unavailable
+4. Consider using `name:en` as default if available
+
+### Priority
+**HIGH** - Affects UX significantly
+
+---
+
+## 3. Multilingual Place Names Not Displaying Correctly (Original Issue)
 
 **Status:** 🔴 ACTIVE - Needs Investigation
 
