@@ -141,7 +141,7 @@ Add new languages:
 - [x] Settings
 - [x] Multi-language support
 - [x] Material 3 theming
-- [ ] Place selection
+- [x] Place selection
 - [ ] Route optimization (ACO)
 
 ### Phase 2: Enhancement
