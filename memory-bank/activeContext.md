@@ -1,34 +1,49 @@
 # Active Context: Travli
 
 ## Current Status
-**Phase 1: Core Functionality** - Building MVP features (60% complete)
+**Phase 1: Core Functionality** - ✅ COMPLETED (Oct 24, 2025)
+**Phase 2: Enhanced Features** - 🔄 PLANNING
 
 ## Current Work Focus
-- **NOW:** Implementing place selection interface (Phase 1.3)
-- **NEXT:** Route optimization with ACO algorithm (Phase 1.4)
+- **NOW:** Planning Phase 2 - Advanced route options
+- **NEXT:** Implement starting location selector
+- **THEN:** Implement route type selector (walk/drive/transit)
 
-## Recent Changes (Oct 21, 2025)
+## Recent Changes (Oct 24, 2025)
+
+### Phase 1 Completion ✅
+- ✅ **Completed entire Phase 1 MVP**
+- ✅ Implemented ACO route optimization algorithm
+- ✅ Added place selection with checkboxes
+- ✅ Integrated Google Maps for route display
+- ✅ Created offline places database (10 major cities)
+- ✅ Fixed DNS errors with multiple fallback servers
+- ✅ Added Android queries for Maps compatibility
+- ✅ Implemented browser fallback for Maps
+- ✅ Changed app name to "Travli" (capital T)
+- ✅ Added app info section (version, build date)
+
+### Previous Achievements (Oct 21, 2025)
 - ✅ Completed Phase 0 (Foundation & Setup)
 - ✅ Integrated Nominatim API for city search
 - ✅ Integrated Overpass API for places data
 - ✅ Implemented Material You dynamic theming
-- ✅ Migrated to Material 3 NavigationBar
-- ✅ Added 10 color seed options
-- ✅ **COMPLETED full localization system (5 languages)**
-- ✅ Localized all UI text (navigation, search, home, settings)
-- ✅ Created search history feature
-- ✅ Implemented smart city ranking by popularity
-- ✅ Fixed AppBar theme (centered, bold titles)
-- ✅ Redesigned search box (circular, filled background)
-- ✅ Updated README with comprehensive documentation
-- ✅ Created changelog system
+- ✅ Full localization system (5 languages)
+- ✅ Search history and smart city ranking
 
 ## Next Immediate Steps
-1. **NOW:** Implement place selection UI (checkboxes/toggle)
-2. Handle multiple place selection state
-3. Add "Generate Route" button
-4. Start ACO algorithm implementation
-5. Create distance matrix calculation
+1. **NOW:** Design UI for starting location selector
+   - Option 1: Current location (GPS)
+   - Option 2: Custom address/place
+   - Option 3: Hotel/accommodation
+2. Design UI for route type selector
+   - Walking 🚶
+   - Driving 🚗
+   - Public transport 🚌
+   - Cycling 🚴
+3. Implement location permission handling
+4. Integrate geocoding for custom addresses
+5. Adjust ACO parameters based on transport mode
 
 ## Active Decisions & Considerations
 
@@ -91,25 +106,33 @@
 
 ### Key Insights
 1. **Ant Colony Optimization** is well-suited for mobile TSP problems
-   - Can be tuned for performance vs accuracy
+   - ✅ Successfully implemented with 200 iterations
    - Works well with 5-20 destinations
-   - Need to limit iterations for real-time performance
+   - Real-time performance achieved (<2 seconds)
+   - Can be adjusted based on transport mode
 
 2. **Offline-first is critical** for travel apps
+   - ✅ Implemented offline database for 10 major cities
    - Users often have limited connectivity while traveling
-   - Local caching must be robust
-   - Sync strategy needs careful planning
+   - DNS errors common on mobile networks
+   - Multiple API fallbacks essential
 
-3. **Design samples provided** show clear patterns:
-   - Clean, minimal interface
-   - Image-heavy design
-   - Consistent spacing and typography
-   - Bottom navigation for main sections
-   - List-based layouts with thumbnails
+3. **Network resilience is crucial**
+   - Mobile networks often block/restrict DNS
+   - Need multiple fallback servers (3+ recommended)
+   - Offline database prevents complete failure
+   - Browser fallback when native apps fail
 
 4. **User flow is straightforward**:
-   - Search → Select → Optimize → Save/Share
-   - Keep it simple, avoid feature bloat
+   - Search → Select → Optimize → Open in Maps
+   - ✅ MVP flow completed
+   - **Next:** Add starting point + transport mode selection
+
+5. **Transport mode matters**
+   - Walking: slower, shorter distances preferred
+   - Driving: faster, can cover more ground
+   - Transit: depends on schedules, station locations
+   - Cycling: medium speed, bike-friendly routes
 
 ### Technical Learnings
 - Flutter's widget system maps well to component-based thinking
@@ -118,24 +141,41 @@
 - Route optimization needs to balance accuracy with speed
 
 ## Questions & Uncertainties
-1. What's the budget for API usage? (affects API choice)
-2. Should we support multiple languages from the start?
-3. How many places should we cache per city?
-4. Should routes be shareable via deep links or export files?
-5. Do we need user accounts in Phase 1, or can we delay to Phase 2?
+1. ✅ RESOLVED: Using free APIs (Nominatim, Overpass)
+2. ✅ RESOLVED: 5 languages implemented
+3. ✅ RESOLVED: Offline database for major cities
+4. ⏳ TODO: Route sharing format (Phase 2.4)
+5. ✅ RESOLVED: User accounts delayed to Phase 2.3
+
+### New Questions (Phase 2)
+1. How to handle GPS permissions gracefully?
+2. Should we show real-time traffic for driving routes?
+3. How to estimate public transport times without API?
+4. Should cycling routes avoid highways automatically?
+5. Allow mixing transport modes in one route?
 
 ## Blockers & Risks
-- **No blockers currently**
-- **Risks**:
-  - API costs could escalate with usage
-  - ACO performance on older devices needs testing
-  - Image caching strategy needs to be efficient
-  - Offline mode complexity might delay MVP
+
+### Resolved Risks ✅
+- ✅ API costs: Using free APIs
+- ✅ ACO performance: Optimized and fast
+- ✅ Offline mode: Implemented successfully
+- ✅ DNS errors: Multiple fallbacks working
+
+### Current Risks ⚠️
+- GPS permission denial by users
+- Geocoding API rate limits for custom addresses
+- Transport mode accuracy without real-time data
+- Battery drain from continuous GPS usage
+- Offline maps size if we add map tiles
 
 ## Context for Next Session
 When resuming work:
-1. Review this file and progress.md
-2. Check if framework decision was made
-3. Continue with project initialization
-4. Start implementing Phase 0 tasks
-5. Reference design samples in `/memory-bank/design-samples.md` for UI implementation
+1. ✅ Phase 1 MVP completed
+2. Review Phase 2 feature requirements
+3. Design UI mockups for:
+   - Starting location selector
+   - Route type selector
+4. Plan GPS permission flow
+5. Research geocoding options for custom addresses
+6. Consider transport mode icons and UI placement

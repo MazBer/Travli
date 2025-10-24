@@ -10,18 +10,21 @@ An intelligent mobile app that optimizes your travel routes using Ant Colony Opt
 
 ## ✨ Features
 
-### 🎯 Core Features
+### 🎯 Core Features (Phase 1 - ✅ Completed)
 - **Smart City Search** - Find cities worldwide with Nominatim API
-- **Place Discovery** - Browse tourist attractions, restaurants, and POIs
-- **Route Optimization** - ACO algorithm for efficient travel routes
+- **Place Discovery** - Browse tourist attractions, museums, landmarks
+- **Route Optimization** - Ant Colony Optimization algorithm for efficient routes
+- **Offline Support** - Works without internet for 10 major cities
+- **Google Maps Integration** - Open optimized routes directly in Maps
 - **Search History** - Quick access to recent searches
 - **Multi-language** - 5 languages (EN, TR, DE, ES, FR)
 
 ### 🎨 Design
-- **Material You** - Dynamic color theming from wallpaper
+- **Material You** - Dynamic color theming from wallpaper (Android 12+)
 - **10 Color Themes** - Choose your preferred color scheme
 - **Dark Mode** - Light, Dark, and System themes
-- **Modern UI** - Material 3 components and animations
+- **Modern UI** - Material 3 components and smooth animations
+- **Responsive** - Adapts to different screen sizes
 
 ### 🌍 Localization
 - 🇬🇧 English
@@ -29,6 +32,13 @@ An intelligent mobile app that optimizes your travel routes using Ant Colony Opt
 - 🇩🇪 Deutsch
 - 🇪🇸 Español
 - 🇫🇷 Français
+
+### 🔥 Coming Soon (Phase 2)
+- **Starting Location Options** - Choose current location or custom address
+- **Route Type Selection** - Walking 🚶, Driving 🚗, Transit 🚌, Cycling 🚴
+- **Save Routes** - Save favorite routes for later
+- **Share Routes** - Share with friends and family
+- **Expanded Offline** - 50+ cities available offline
 
 ## 🚀 Getting Started
 
@@ -110,8 +120,15 @@ lib/
 ```
 
 ### APIs Used
-- **Nominatim (OpenStreetMap)** - City search
-- **Overpass API** - Places and POI data
+- **Nominatim (OpenStreetMap)** - City search and geocoding
+- **Overpass API** - Places and POI data (3 fallback servers)
+- **Google Maps** - Route visualization and navigation
+
+### Network Resilience
+- Multiple API fallback servers
+- Offline database for major cities
+- Graceful degradation when APIs unavailable
+- DNS error handling
 
 ## 🎨 Theming
 
@@ -135,26 +152,33 @@ Add new languages:
 
 ## 📋 Roadmap
 
-### Phase 1: Core Features (In Progress)
-- [x] Home screen
-- [x] City search
-- [x] Settings
-- [x] Multi-language support
-- [x] Material 3 theming
-- [x] Place selection
-- [ ] Route optimization (ACO)
+### Phase 1: Core Features ✅ COMPLETED (Oct 24, 2025)
+- [x] Home screen with navigation
+- [x] City search (online + offline)
+- [x] Place discovery and selection
+- [x] Route optimization (ACO algorithm)
+- [x] Google Maps integration
+- [x] Multi-language support (5 languages)
+- [x] Material 3 theming with 10 color options
+- [x] Offline places database (10 cities)
+- [x] Settings with app info
 
-### Phase 2: Enhancement
+### Phase 2: Enhanced Features 🔄 IN PROGRESS
+- [ ] **Starting location options** (GPS/custom address)
+- [ ] **Route type selection** (walk/drive/transit/bike)
+- [ ] Adjust optimization based on transport mode
+- [ ] Save and share routes
+- [ ] Expand offline database (50+ cities)
+- [ ] Recent history tracking
 - [ ] Performance optimization
-- [ ] UX improvements
-- [ ] Loading states
-- [ ] Error handling
 
-### Phase 3: Advanced Features
-- [ ] Place filtering
-- [ ] Route editing
-- [ ] Multi-day routes
-- [ ] Offline support
+### Phase 3: Advanced Features ⏳ PLANNED
+- [ ] Place filtering by category/rating
+- [ ] Route editing (reorder, add/remove)
+- [ ] Multi-day trip planning
+- [ ] Real-time traffic integration
+- [ ] User accounts and sync
+- [ ] Route recommendations
 
 See [changelog](changelog/) for detailed progress.
 
