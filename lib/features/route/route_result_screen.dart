@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/services/aco_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -219,9 +220,7 @@ class RouteResultScreen extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: FilledButton.icon(
-            onPressed: () {
-              // TODO: Navigate to map view
-            },
+            onPressed: () => _openInGoogleMaps(context),
             icon: const Icon(Icons.map),
             label: const Text('View on Map'),
             style: FilledButton.styleFrom(
@@ -231,6 +230,59 @@ class RouteResultScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Open the optimized route in Google Maps
+  Future<void> _openInGoogleMaps(BuildContext context) async {
+    if (result.route.isEmpty) return;
+
+    try {
+      // Build Google Maps URL with directions
+      final origin = result.route.first;
+      final destination = result.route.last;
+      
+      // Build waypoints (all places except first and last)
+      final waypoints = <String>[];
+      for (int i = 1; i < result.route.length - 1; i++) {
+        final place = result.route[i];
+        waypoints.add('${place.latitude},${place.longitude}');
+      }
+      
+      // Construct Google Maps URL
+      String url = 'https://www.google.com/maps/dir/?api=1';
+      url += '&origin=${origin.latitude},${origin.longitude}';
+      url += '&destination=${destination.latitude},${destination.longitude}';
+      
+      if (waypoints.isNotEmpty) {
+        url += '&waypoints=${waypoints.join('|')}';
+      }
+      
+      url += '&travelmode=driving';
+      
+      final uri = Uri.parse(url);
+      
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Could not open Google Maps'),
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening map: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildStatItem(BuildContext context, IconData icon, String value, String label) {
