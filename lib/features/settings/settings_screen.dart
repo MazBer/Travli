@@ -94,7 +94,24 @@ class SettingsScreen extends ConsumerWidget {
               }
               
               final info = snapshot.data!;
-              final buildDate = DateTime.now().toString().split(' ')[0]; // Current date as placeholder
+              
+              // Extract build date from description if available
+              String buildDate = 'Unknown';
+              if (info.packageName.isNotEmpty) {
+                // Try to extract from description: "... | Build: 2025-10-24"
+                final descParts = (info.appName).split('|');
+                if (descParts.length > 1) {
+                  final buildPart = descParts.last.trim();
+                  if (buildPart.startsWith('Build:')) {
+                    buildDate = buildPart.replaceFirst('Build:', '').trim();
+                  }
+                }
+              }
+              
+              // Fallback to current date if not found
+              if (buildDate == 'Unknown') {
+                buildDate = DateTime.now().toString().split(' ')[0];
+              }
               
               return Column(
                 children: [

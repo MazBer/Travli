@@ -6,13 +6,19 @@ import '../data/popular_cities.dart';
 class ApiService {
   final Dio _dio = Dio();
   
-  // Overpass API for places (OpenStreetMap)
-  static const String _overpassBaseUrl = 'https://overpass-api.de/api/interpreter';
+  // Multiple Overpass API servers for fallback
+  static const List<String> _overpassServers = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.ru/api/interpreter',
+  ];
 
   ApiService() {
     _dio.options.headers = {
       'User-Agent': 'Travli/1.0.0', // Required by Nominatim
     };
+    _dio.options.connectTimeout = const Duration(seconds: 30);
+    _dio.options.receiveTimeout = const Duration(seconds: 60);
   }
 
   /// Search for cities by name
@@ -154,41 +160,66 @@ class ApiService {
     print('Coordinates: ${city.latitude}, ${city.longitude}');
     print('City ID: $cityId');
     
-    try {
-      // Define the search radius (in meters)
-      const radius = 10000; // 10km
+    // Define the search radius (in meters)
+    const radius = 10000; // 10km
 
-      // Overpass QL query to get tourist attractions
-      final query = '''
-        [out:json][timeout:25];
-        (
-          node["tourism"="attraction"](around:$radius,${city.latitude},${city.longitude});
-          node["tourism"="museum"](around:$radius,${city.latitude},${city.longitude});
-          node["tourism"="viewpoint"](around:$radius,${city.latitude},${city.longitude});
-          node["historic"](around:$radius,${city.latitude},${city.longitude});
-          node["amenity"="place_of_worship"](around:$radius,${city.latitude},${city.longitude});
-          way["tourism"="attraction"](around:$radius,${city.latitude},${city.longitude});
-          way["tourism"="museum"](around:$radius,${city.latitude},${city.longitude});
-          way["historic"](around:$radius,${city.latitude},${city.longitude});
-        );
-        out center 100;
-      ''';
-
-      print('Sending request to Overpass API...');
-      print('URL: $_overpassBaseUrl');
-      
-      final response = await _dio.post(
-        _overpassBaseUrl,
-        data: query,
-        options: Options(
-          contentType: 'application/x-www-form-urlencoded',
-          receiveTimeout: const Duration(seconds: 30),
-          sendTimeout: const Duration(seconds: 30),
-        ),
+    // Overpass QL query to get tourist attractions
+    final query = '''
+      [out:json][timeout:25];
+      (
+        node["tourism"="attraction"](around:$radius,${city.latitude},${city.longitude});
+        node["tourism"="museum"](around:$radius,${city.latitude},${city.longitude});
+        node["tourism"="viewpoint"](around:$radius,${city.latitude},${city.longitude});
+        node["historic"](around:$radius,${city.latitude},${city.longitude});
+        node["amenity"="place_of_worship"](around:$radius,${city.latitude},${city.longitude});
+        way["tourism"="attraction"](around:$radius,${city.latitude},${city.longitude});
+        way["tourism"="museum"](around:$radius,${city.latitude},${city.longitude});
+        way["historic"](around:$radius,${city.latitude},${city.longitude});
       );
+      out center 100;
+    ''';
+
+    // Try each Overpass server until one works
+    Response? response;
+    
+    for (int i = 0; i < _overpassServers.length; i++) {
+      final serverUrl = _overpassServers[i];
+      print('Trying server ${i + 1}/${_overpassServers.length}: $serverUrl');
       
-      print('Response status: ${response.statusCode}');
-      print('Response data type: ${response.data.runtimeType}');
+      try {
+        response = await _dio.post(
+          serverUrl,
+          data: query,
+          options: Options(
+            contentType: 'application/x-www-form-urlencoded',
+            receiveTimeout: const Duration(seconds: 30),
+            sendTimeout: const Duration(seconds: 30),
+          ),
+        );
+        
+        print('✓ Success with server: $serverUrl');
+        print('Response status: ${response.statusCode}');
+        break; // Success, exit loop
+        
+      } catch (e) {
+        print('✗ Failed with server $serverUrl: $e');
+        if (i == _overpassServers.length - 1) {
+          // Last server also failed
+          print('All servers failed!');
+          rethrow;
+        }
+        // Try next server
+        continue;
+      }
+    }
+    
+    if (response == null) {
+      throw Exception('All Overpass API servers failed');
+    }
+    
+    print('Response data type: ${response.data.runtimeType}');
+    
+    try {
 
       final data = response.data as Map<String, dynamic>;
       final elements = data['elements'] as List<dynamic>? ?? [];
