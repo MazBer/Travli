@@ -27,9 +27,21 @@ class Place {
     this.isSelected = false,
   });
   
-  /// Get name in preferred language, fallback to default name
+  /// Get name in preferred language with smart fallback
+  /// Priority: User's language → English → Original name
   String getLocalizedName(String languageCode) {
-    return localizedNames[languageCode] ?? name;
+    // Try user's preferred language
+    if (localizedNames.containsKey(languageCode)) {
+      return localizedNames[languageCode]!;
+    }
+    
+    // Fallback to English if available (most common translation)
+    if (languageCode != 'en' && localizedNames.containsKey('en')) {
+      return localizedNames['en']!;
+    }
+    
+    // Fallback to original name
+    return name;
   }
 
   // Convert Place to Map for database

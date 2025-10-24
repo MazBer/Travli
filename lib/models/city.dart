@@ -86,12 +86,22 @@ class City {
   @override
   int get hashCode => id.hashCode ^ name.hashCode;
 
-  /// Get translated city name
+  /// Get localized city name
+  /// Returns translated name if available, otherwise returns original name
+  String getLocalizedName(String languageCode) {
+    // Import is done at usage site to avoid circular dependencies
+    // Using static translations for now
+    // TODO: Integrate with translation service for dynamic translations
+    return name; // For now, return original name
+    // Will be enhanced with CityTranslations.getTranslatedName(name, languageCode)
+  }
+
+  /// Get translated city name (legacy method)
   String getTranslatedName(String languageCode, translationService) {
     return translationService.translateCity(name, languageCode);
   }
 
-  /// Get translated country name
+  /// Get translated country name (legacy method)
   String getTranslatedCountry(String languageCode, translationService) {
     return translationService.translateCountry(country, languageCode);
   }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../models/city.dart';
 import '../../models/place.dart';
+import '../data/popular_cities.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -91,6 +92,12 @@ class ApiService {
 
       print('Sorted cities: ${cities.map((c) => '${c.name} (${_getCityPopularityScore(c.name)})').join(', ')}');
 
+      // If API returned no results, use offline database
+      if (cities.isEmpty) {
+        print('API returned no results, using offline database...');
+        return PopularCities.search(query);
+      }
+      
       // Limit to 10 unique cities after sorting
       if (cities.length > 10) {
         return cities.sublist(0, 10);
@@ -98,8 +105,11 @@ class ApiService {
 
       return cities;
     } catch (e) {
-      print('Error searching cities: $e');
-      return [];
+      print('Error searching cities from API: $e');
+      print('Falling back to offline city database...');
+      
+      // Fallback to offline popular cities
+      return PopularCities.search(query);
     }
   }
 
