@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/services/aco_service.dart';
+import '../../core/providers/units_provider.dart';
 import '../../l10n/app_localizations.dart';
 
 class RouteResultScreen extends ConsumerWidget {
@@ -16,6 +17,7 @@ class RouteResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final unitSystem = ref.watch(unitsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -82,7 +84,7 @@ class RouteResultScreen extends ConsumerWidget {
                     _buildStatItem(
                       context,
                       Icons.straighten,
-                      result.distanceInKm,
+                      result.totalDistance.toDistanceString(unitSystem),
                       'Distance',
                     ),
                     _buildStatItem(

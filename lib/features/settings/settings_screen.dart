@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/language_provider.dart';
+import '../../core/providers/units_provider.dart';
 import '../../core/services/translation_service.dart';
 import '../../core/theme/theme_constants.dart';
 
@@ -40,12 +41,7 @@ class SettingsScreen extends ConsumerWidget {
           _buildColorSchemeSwitcher(context, ref, l10n),
           _buildColorSeedSelector(context, ref, l10n),
           _buildLanguageSelector(context, ref, l10n),
-          _buildSettingItem(
-            context,
-            icon: Icons.straighten_outlined,
-            title: l10n.units,
-            subtitle: l10n.metric,
-          ),
+          _buildUnitsSelector(context, ref, l10n),
           
           // Account section
           Padding(
@@ -291,6 +287,72 @@ class SettingsScreen extends ConsumerWidget {
               ),
             );
           }).toList();
+        },
+      ),
+    );
+  }
+
+  Widget _buildUnitsSelector(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final currentUnit = ref.watch(unitsProvider);
+    final unitName = currentUnit == UnitSystem.metric ? l10n.metric : l10n.imperial;
+
+    return ListTile(
+      leading: Container(
+        width: AppSpacing.avatarSm,
+        height: AppSpacing.avatarSm,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        ),
+        child: Icon(
+          Icons.straighten_outlined,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+      title: Text(
+        l10n.units,
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+      subtitle: Text(
+        unitName,
+        style: Theme.of(context).textTheme.labelMedium,
+      ),
+      trailing: PopupMenuButton<UnitSystem>(
+        icon: const Icon(Icons.arrow_forward_ios, size: 16),
+        onSelected: (UnitSystem system) {
+          ref.read(unitsProvider.notifier).setUnitSystem(system);
+        },
+        itemBuilder: (BuildContext context) {
+          return [
+            PopupMenuItem<UnitSystem>(
+              value: UnitSystem.metric,
+              child: Row(
+                children: [
+                  Text(l10n.metric),
+                  const SizedBox(width: 8),
+                  Text('(km, m)', style: Theme.of(context).textTheme.bodySmall),
+                  if (currentUnit == UnitSystem.metric) ...[
+                    const Spacer(),
+                    Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),
+                  ],
+                ],
+              ),
+            ),
+            PopupMenuItem<UnitSystem>(
+              value: UnitSystem.imperial,
+              child: Row(
+                children: [
+                  Text(l10n.imperial),
+                  const SizedBox(width: 8),
+                  Text('(mi, ft)', style: Theme.of(context).textTheme.bodySmall),
+                  if (currentUnit == UnitSystem.imperial) ...[
+                    const Spacer(),
+                    Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),
+                  ],
+                ],
+              ),
+            ),
+          ];
         },
       ),
     );
