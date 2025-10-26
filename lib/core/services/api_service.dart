@@ -323,16 +323,24 @@ class ApiService {
       print('City: ${city.name} (${city.latitude}, ${city.longitude})');
       
       // Try offline database as last resort
-      print('Attempting to use offline places database...');
+      print('=== ATTEMPTING OFFLINE FALLBACK ===');
+      print('City name: "${city.name}"');
+      print('City ID: $cityId');
+      print('Normalized name: "${city.name.toLowerCase()}"');
+      
       final offlinePlaces = OfflinePlaces.getPlacesForCity(city.name, cityId ?? 0);
       
+      print('Offline places found: ${offlinePlaces.length}');
+      
       if (offlinePlaces.isNotEmpty) {
-        print('✓ Found ${offlinePlaces.length} places in offline database');
+        print('✓✓✓ SUCCESS! Found ${offlinePlaces.length} places in offline database');
         print('Using offline data for ${city.name}');
+        print('First place: ${offlinePlaces.first.name}');
         return offlinePlaces;
       }
       
-      print('✗ No offline data available for ${city.name}');
+      print('✗✗✗ FAILED! No offline data available for "${city.name}"');
+      print('Available cities: Rome, Paris, London, Barcelona, Istanbul, Amsterdam, Berlin, Vienna, Prague, Athens');
       
       // Provide helpful error message
       throw Exception(

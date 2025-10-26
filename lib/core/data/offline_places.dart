@@ -6,40 +6,69 @@ class OfflinePlaces {
   
   /// Get places for a city by name
   static List<Place> getPlacesForCity(String cityName, int cityId) {
-    final normalizedName = cityName.toLowerCase();
+    print('[OfflinePlaces] Looking up city: "$cityName" (ID: $cityId)');
+    final normalizedName = cityName.toLowerCase().trim();
+    print('[OfflinePlaces] Normalized: "$normalizedName"');
+    
+    List<Place> places = [];
     
     switch (normalizedName) {
       case 'rome':
       case 'roma':
-        return _getRomePlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Rome');
+        places = _getRomePlaces(cityId);
+        break;
       case 'paris':
-        return _getParisPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Paris');
+        places = _getParisPlaces(cityId);
+        break;
       case 'london':
       case 'londra':
-        return _getLondonPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: London');
+        places = _getLondonPlaces(cityId);
+        break;
       case 'barcelona':
-        return _getBarcelonaPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Barcelona');
+        places = _getBarcelonaPlaces(cityId);
+        break;
       case 'istanbul':
       case 'İstanbul':
-        return _getIstanbulPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Istanbul');
+        places = _getIstanbulPlaces(cityId);
+        break;
       case 'amsterdam':
-        return _getAmsterdamPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Amsterdam');
+        places = _getAmsterdamPlaces(cityId);
+        break;
       case 'berlin':
-        return _getBerlinPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Berlin');
+        places = _getBerlinPlaces(cityId);
+        break;
       case 'vienna':
       case 'viyana':
       case 'wien':
-        return _getViennaPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Vienna');
+        places = _getViennaPlaces(cityId);
+        break;
       case 'prague':
       case 'prag':
       case 'praha':
-        return _getPraguePlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Prague');
+        places = _getPraguePlaces(cityId);
+        break;
       case 'athens':
       case 'atina':
-        return _getAthensPlaces(cityId);
+        print('[OfflinePlaces] ✓ Matched: Athens');
+        places = _getAthensPlaces(cityId);
+        break;
       default:
-        return [];
+        print('[OfflinePlaces] ✗ NO MATCH for "$normalizedName"');
+        print('[OfflinePlaces] Available: rome, paris, london, barcelona, istanbul, amsterdam, berlin, vienna, prague, athens');
+        places = [];
     }
+    
+    print('[OfflinePlaces] Returning ${places.length} places');
+    return places;
   }
 
   static List<Place> _getRomePlaces(int cityId) {
