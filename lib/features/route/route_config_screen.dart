@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/aco_provider.dart';
+import '../../core/services/aco_service.dart';
 import '../../models/place.dart';
 import 'route_result_screen.dart';
 
@@ -93,6 +94,9 @@ class _RouteConfigScreenState extends ConsumerState<RouteConfigScreen> {
 
   void _generateRoute() async {
     final l10n = AppLocalizations.of(context)!;
+    final transportMode = ref.read(transportModeProvider);
+    final startingLocationType = ref.read(startingLocationTypeProvider);
+    final customAddress = ref.read(customAddressProvider);
     
     // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
@@ -113,9 +117,56 @@ class _RouteConfigScreenState extends ConsumerState<RouteConfigScreen> {
     );
 
     try {
+      // Convert transport mode to Google Maps format
+      String googleMapsMode;
+      switch (transportMode) {
+        case TransportMode.walking:
+          googleMapsMode = 'walking';
+          break;
+        case TransportMode.driving:
+          googleMapsMode = 'driving';
+          break;
+        case TransportMode.publicTransport:
+          googleMapsMode = 'transit';
+          break;
+        case TransportMode.cycling:
+          googleMapsMode = 'bicycling';
+          break;
+      }
+      
+      // Prepare starting location data
+      Map<String, dynamic>? startingLocationData;
+      if (startingLocationType == StartingLocationType.currentLocation) {
+        // TODO: Get actual GPS coordinates
+        startingLocationData = {
+          'type': 'gps',
+          'latitude': null,
+          'longitude': null,
+        };
+      } else if (startingLocationType == StartingLocationType.customAddress) {
+        startingLocationData = {
+          'type': 'custom',
+          'address': customAddress,
+        };
+      } else {
+        // First place - will be handled in route result
+        startingLocationData = {
+          'type': 'first_place',
+        };
+      }
+
       // Run ACO algorithm
       final acoService = ref.read(acoServiceProvider);
-      final result = await acoService.calculateOptimalRoute(widget.selectedPlaces);
+      final baseResult = await acoService.calculateOptimalRoute(widget.selectedPlaces);
+      
+      // Create enhanced result with configuration
+      final result = AcoResult(
+        route: baseResult.route,
+        totalDistance: baseResult.totalDistance,
+        iterations: baseResult.iterations,
+        transportMode: googleMapsMode,
+        startingLocation: startingLocationData,
+      );
 
       // Hide loading snackbar
       if (mounted) {

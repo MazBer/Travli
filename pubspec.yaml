@@ -1,8 +1,8 @@
 name: Travli
-description: "Smart Travel Route Planner - Visit more, travel less | Build: 2025-10-24"
+description: "Smart Travel Route Planner - Visit more, travel less | Build: 2025-11-07"
 publish_to: 'none'
 
-version: 0.0.1+3
+version: 0.0.1+4
 
 environment:
   sdk: ^3.9.2

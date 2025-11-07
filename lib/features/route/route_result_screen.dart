@@ -271,9 +271,12 @@ class RouteResultScreen extends ConsumerWidget {
         url += '&waypoints=${waypoints.join('|')}';
       }
       
-      url += '&travelmode=driving';
+      // Use configured transport mode or default to driving
+      final travelMode = result.transportMode ?? 'driving';
+      url += '&travelmode=$travelMode';
       
       print('Opening Google Maps URL: $url'); // Debug
+      print('Transport mode: $travelMode'); // Debug
       
       final uri = Uri.parse(url);
       

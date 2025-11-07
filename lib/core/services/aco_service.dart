@@ -276,19 +276,41 @@ class AcoResult {
   final List<Place> route;
   final double totalDistance;
   final int iterations;
+  final String? transportMode; // 'walking', 'driving', 'transit', 'bicycling'
+  final Map<String, dynamic>? startingLocation; // {type, latitude, longitude, address}
 
   AcoResult({
     required this.route,
     required this.totalDistance,
     required this.iterations,
+    this.transportMode,
+    this.startingLocation,
   });
 
   /// Get total distance in kilometers
   String get distanceInKm => '${totalDistance.toStringAsFixed(2)} km';
 
-  /// Get estimated travel time (assuming average speed of 40 km/h in city)
+  /// Get estimated travel time based on transport mode
   String get estimatedTime {
-    final hours = totalDistance / 40.0;
+    // Speed in km/h based on transport mode
+    double speed;
+    switch (transportMode) {
+      case 'walking':
+        speed = 5.0;
+        break;
+      case 'bicycling':
+        speed = 15.0;
+        break;
+      case 'transit':
+        speed = 20.0;
+        break;
+      case 'driving':
+      default:
+        speed = 40.0;
+        break;
+    }
+    
+    final hours = totalDistance / speed;
     final minutes = (hours * 60).round();
 
     if (minutes < 60) {
