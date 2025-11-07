@@ -136,23 +136,26 @@ Phase 3: Polish & Optimization
 
 ## Phase 2: Enhanced Features
 **Goal**: Add advanced route options, authentication, and data persistence
-**Status**: 🔄 PLANNING (Oct 24, 2025)
+**Status**: 🔄 IN PROGRESS (Nov 7, 2025)
 
 ### Tasks
 
-#### 2.1 Advanced Route Options (NEW - Priority)
-- [ ] Add starting location option:
-  - Current location (GPS)
-  - Custom address/place
-  - Hotel/accommodation
-- [ ] Add route type selection:
-  - Walking 🚶
-  - Driving 🚗
-  - Public transport 🚌
-  - Cycling 🚴
+#### 2.1 Advanced Route Options (NEW - Priority) - IN PROGRESS
+- [x] Add starting location option:
+  - [x] Current location (GPS)
+  - [x] Custom address/place
+  - [x] First selected place (default)
+- [x] Add route type selection:
+  - [x] Walking 🚶
+  - [x] Driving 🚗
+  - [x] Public transport 🚌
+  - [x] Cycling 🚴
+- [x] Create route configuration screen UI
+- [x] Add GPS permissions (Android)
+- [x] Implement location permission handling
+- [ ] Integrate geocoding for custom addresses
 - [ ] Adjust optimization based on transport mode
 - [ ] Show different time/distance estimates per mode
-- [ ] Add transport mode icons in UI
 
 #### 2.2 Offline Mode Enhancement
 - [x] Offline places database (10 cities)
@@ -270,7 +273,7 @@ Phase 3: Polish & Optimization
 
 ---
 
-## Current Status Summary (Oct 24, 2025)
+## Current Status Summary (Nov 7, 2025)
 
 ### What Works ✅
 - ✅ Complete app foundation (Phase 0)
@@ -283,15 +286,21 @@ Phase 3: Polish & Optimization
 - ✅ Material You theming
 - ✅ Offline places database (10 major cities)
 - ✅ DNS error handling with fallback servers
+- ✅ Metric/Imperial units (Phase 2)
+- ✅ Route configuration screen (Phase 2)
+- ✅ Starting location selector (Phase 2)
+- ✅ Transport mode selector (Phase 2)
+- ✅ GPS permissions (Phase 2)
 
 ### What's In Progress 🔄
-- 🔄 Phase 2 Planning: Advanced route options
-- 🔄 Documentation updates
+- 🔄 Phase 2.1: Advanced route options
+- 🔄 Geocoding integration for custom addresses
+- 🔄 ACO algorithm adjustments for transport modes
 
 ### What's Next ⏳
-- ⏳ Starting location options (GPS/custom)
-- ⏳ Route type selection (walk/drive/transit)
-- ⏳ Expand offline database
+- ⏳ Adjust ACO parameters based on transport mode
+- ⏳ Show different time/distance estimates per mode
+- ⏳ Expand offline database (50+ cities)
 - ⏳ Save and share routes
 - ⏳ Performance optimization
 
@@ -299,6 +308,7 @@ Phase 3: Polish & Optimization
 - ✅ FIXED: DNS errors on mobile networks (added fallback servers)
 - ✅ FIXED: Google Maps not opening (added Android queries)
 - ✅ FIXED: Offline places not loading (fixed error handling)
+- ✅ FIXED: Offline mode on user's phone (user confirmed working)
 - None currently blocking
 
 ### Evolution of Project Decisions
