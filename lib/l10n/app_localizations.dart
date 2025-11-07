@@ -373,6 +373,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Showing {count} places'**
   String showingPlaces(int count);
+
+  /// Route configuration screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Route Configuration'**
+  String get routeConfiguration;
+
+  /// Starting location section title
+  ///
+  /// In en, this message translates to:
+  /// **'Starting Location'**
+  String get startingLocation;
+
+  /// Transport mode section title
+  ///
+  /// In en, this message translates to:
+  /// **'Transport Mode'**
+  String get transportMode;
+
+  /// Route configuration subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Configure your route preferences'**
+  String get configureYourRoute;
+
+  /// First selected place option
+  ///
+  /// In en, this message translates to:
+  /// **'First Selected Place'**
+  String get firstSelectedPlace;
+
+  /// First selected place description
+  ///
+  /// In en, this message translates to:
+  /// **'Start from the first place in your selection'**
+  String get startFromFirstPlace;
+
+  /// Current location option
+  ///
+  /// In en, this message translates to:
+  /// **'Current Location'**
+  String get currentLocation;
+
+  /// Current location description
+  ///
+  /// In en, this message translates to:
+  /// **'Use your current GPS location'**
+  String get useGpsLocation;
+
+  /// Custom address option
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Address'**
+  String get customAddress;
+
+  /// Custom address description
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a specific address or place'**
+  String get enterCustomAddress;
+
+  /// Address input placeholder
+  ///
+  /// In en, this message translates to:
+  /// **'Enter address...'**
+  String get enterAddress;
+
+  /// Getting location loading text
+  ///
+  /// In en, this message translates to:
+  /// **'Getting location...'**
+  String get gettingLocation;
+
+  /// Get location button
+  ///
+  /// In en, this message translates to:
+  /// **'Get My Location'**
+  String get getMyLocation;
+
+  /// Walking transport mode
+  ///
+  /// In en, this message translates to:
+  /// **'Walking'**
+  String get walking;
+
+  /// Driving transport mode
+  ///
+  /// In en, this message translates to:
+  /// **'Driving'**
+  String get driving;
+
+  /// Public transport mode
+  ///
+  /// In en, this message translates to:
+  /// **'Transit'**
+  String get publicTransport;
+
+  /// Cycling transport mode
+  ///
+  /// In en, this message translates to:
+  /// **'Cycling'**
+  String get cycling;
 }
 
 class _AppLocalizationsDelegate

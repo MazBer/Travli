@@ -229,5 +229,90 @@
         "type": "int"
       }
     }
+  },
+  
+  "routeConfiguration": "Route Configuration",
+  "@routeConfiguration": {
+    "description": "Route configuration screen title"
+  },
+  
+  "startingLocation": "Starting Location",
+  "@startingLocation": {
+    "description": "Starting location section title"
+  },
+  
+  "transportMode": "Transport Mode",
+  "@transportMode": {
+    "description": "Transport mode section title"
+  },
+  
+  "configureYourRoute": "Configure your route preferences",
+  "@configureYourRoute": {
+    "description": "Route configuration subtitle"
+  },
+  
+  "firstSelectedPlace": "First Selected Place",
+  "@firstSelectedPlace": {
+    "description": "First selected place option"
+  },
+  
+  "startFromFirstPlace": "Start from the first place in your selection",
+  "@startFromFirstPlace": {
+    "description": "First selected place description"
+  },
+  
+  "currentLocation": "Current Location",
+  "@currentLocation": {
+    "description": "Current location option"
+  },
+  
+  "useGpsLocation": "Use your current GPS location",
+  "@useGpsLocation": {
+    "description": "Current location description"
+  },
+  
+  "customAddress": "Custom Address",
+  "@customAddress": {
+    "description": "Custom address option"
+  },
+  
+  "enterCustomAddress": "Enter a specific address or place",
+  "@enterCustomAddress": {
+    "description": "Custom address description"
+  },
+  
+  "enterAddress": "Enter address...",
+  "@enterAddress": {
+    "description": "Address input placeholder"
+  },
+  
+  "gettingLocation": "Getting location...",
+  "@gettingLocation": {
+    "description": "Getting location loading text"
+  },
+  
+  "getMyLocation": "Get My Location",
+  "@getMyLocation": {
+    "description": "Get location button"
+  },
+  
+  "walking": "Walking",
+  "@walking": {
+    "description": "Walking transport mode"
+  },
+  
+  "driving": "Driving",
+  "@driving": {
+    "description": "Driving transport mode"
+  },
+  
+  "publicTransport": "Transit",
+  "@publicTransport": {
+    "description": "Public transport mode"
+  },
+  
+  "cycling": "Cycling",
+  "@cycling": {
+    "description": "Cycling transport mode"
   }
 }

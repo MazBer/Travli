@@ -144,4 +144,56 @@ class AppLocalizationsEs extends AppLocalizations {
   String showingPlaces(int count) {
     return 'Mostrando $count lugares';
   }
+
+  @override
+  String get routeConfiguration => 'Route Configuration';
+
+  @override
+  String get startingLocation => 'Starting Location';
+
+  @override
+  String get transportMode => 'Transport Mode';
+
+  @override
+  String get configureYourRoute => 'Configure your route preferences';
+
+  @override
+  String get firstSelectedPlace => 'First Selected Place';
+
+  @override
+  String get startFromFirstPlace =>
+      'Start from the first place in your selection';
+
+  @override
+  String get currentLocation => 'Current Location';
+
+  @override
+  String get useGpsLocation => 'Use your current GPS location';
+
+  @override
+  String get customAddress => 'Custom Address';
+
+  @override
+  String get enterCustomAddress => 'Enter a specific address or place';
+
+  @override
+  String get enterAddress => 'Enter address...';
+
+  @override
+  String get gettingLocation => 'Getting location...';
+
+  @override
+  String get getMyLocation => 'Get My Location';
+
+  @override
+  String get walking => 'Walking';
+
+  @override
+  String get driving => 'Driving';
+
+  @override
+  String get publicTransport => 'Transit';
+
+  @override
+  String get cycling => 'Cycling';
 }
