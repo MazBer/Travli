@@ -257,6 +257,10 @@ class RouteResultScreen extends ConsumerWidget {
       String originCoords;
       List<String> waypoints = [];
       
+      // Get transport mode first to handle transit limitation
+      final travelMode = result.transportMode ?? 'driving';
+      final isTransitMode = travelMode == 'transit';
+      
       if (result.startingLocation != null && 
           result.startingLocation!['type'] == 'gps' &&
           result.startingLocation!['latitude'] != null) {
@@ -265,20 +269,26 @@ class RouteResultScreen extends ConsumerWidget {
         final lng = result.startingLocation!['longitude'];
         originCoords = '$lat,$lng';
         
+        // For transit mode, skip waypoints (Google Maps limitation)
         // All route places become waypoints except the last (destination)
-        for (int i = 0; i < result.route.length - 1; i++) {
-          final place = result.route[i];
-          waypoints.add('${place.latitude},${place.longitude}');
+        if (!isTransitMode) {
+          for (int i = 0; i < result.route.length - 1; i++) {
+            final place = result.route[i];
+            waypoints.add('${place.latitude},${place.longitude}');
+          }
         }
       } else {
         // Use first place as origin
         final origin = result.route.first;
         originCoords = '${origin.latitude},${origin.longitude}';
         
+        // For transit mode, skip waypoints (Google Maps limitation)
         // Build waypoints (all places except first and last)
-        for (int i = 1; i < result.route.length - 1; i++) {
-          final place = result.route[i];
-          waypoints.add('${place.latitude},${place.longitude}');
+        if (!isTransitMode) {
+          for (int i = 1; i < result.route.length - 1; i++) {
+            final place = result.route[i];
+            waypoints.add('${place.latitude},${place.longitude}');
+          }
         }
       }
       
@@ -289,24 +299,25 @@ class RouteResultScreen extends ConsumerWidget {
       url += '&origin=$originCoords';
       url += '&destination=${destination.latitude},${destination.longitude}';
       
-      if (waypoints.isNotEmpty) {
+      // Google Maps doesn't support waypoints with transit mode
+      if (waypoints.isNotEmpty && !isTransitMode) {
         url += '&waypoints=${waypoints.join('|')}';
       }
-      
-      // Use configured transport mode or default to driving
-      final travelMode = result.transportMode ?? 'driving';
       url += '&travelmode=$travelMode';
       
       // Debug logging
       print('=== Google Maps Debug ===');
       print('Transport mode: $travelMode');
+      if (isTransitMode) {
+        print('⚠️  Transit mode: Waypoints disabled (Google Maps limitation)');
+      }
       print('Starting location type: ${result.startingLocation?['type']}');
       if (result.startingLocation?['type'] == 'gps') {
         print('GPS Origin: ${result.startingLocation?['latitude']}, ${result.startingLocation?['longitude']}');
       }
       print('Origin: $originCoords');
       print('Destination: ${destination.latitude},${destination.longitude}');
-      print('Waypoints: ${waypoints.length}');
+      print('Waypoints: ${waypoints.length}${isTransitMode ? ' (skipped for transit)' : ''}');
       print('Full URL: $url');
       print('========================');
       

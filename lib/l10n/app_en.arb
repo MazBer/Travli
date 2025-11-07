@@ -313,6 +313,10 @@
   
   "cycling": "Cycling",
   "@cycling": {
-    "description": "Cycling transport mode"
+    "description": "Cycling transport mode label"
+  },
+  "transitLimitation": "Note: Transit mode shows direct route only (no stops)",
+  "@transitLimitation": {
+    "description": "Warning about transit mode limitation with waypoints"
   }
 }

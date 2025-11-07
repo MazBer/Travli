@@ -470,11 +470,17 @@ abstract class AppLocalizations {
   /// **'Transit'**
   String get publicTransport;
 
-  /// Cycling transport mode
+  /// Cycling transport mode label
   ///
   /// In en, this message translates to:
   /// **'Cycling'**
   String get cycling;
+
+  /// Warning about transit mode limitation with waypoints
+  ///
+  /// In en, this message translates to:
+  /// **'Note: Transit mode shows direct route only (no stops)'**
+  String get transitLimitation;
 }
 
 class _AppLocalizationsDelegate

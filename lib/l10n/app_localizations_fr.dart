@@ -196,4 +196,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get cycling => 'Cycling';
+
+  @override
+  String get transitLimitation =>
+      'Note: Transit mode shows direct route only (no stops)';
 }
