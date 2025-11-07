@@ -26,9 +26,9 @@ if ($content -match 'version:\s*(\d+)\.(\d+)\.(\d+)\+(\d+)') {
     # Write back to file
     Set-Content -Path $pubspecPath -Value $newContent -NoNewline
     
-    Write-Host "✓ Version updated: $oldVersion → $newVersion" -ForegroundColor Green
-    Write-Host "  Build number: $build → $newBuild" -ForegroundColor Cyan
+    Write-Host "[OK] Version updated: $oldVersion -> $newVersion" -ForegroundColor Green
+    Write-Host "  Build number: $build -> $newBuild" -ForegroundColor Cyan
 } else {
-    Write-Host "✗ Could not find version in pubspec.yaml" -ForegroundColor Red
+    Write-Host "[ERROR] Could not find version in pubspec.yaml" -ForegroundColor Red
     exit 1
 }

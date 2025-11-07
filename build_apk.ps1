@@ -8,7 +8,7 @@ Write-Host ""
 Write-Host "[1/4] Incrementing version..." -ForegroundColor Yellow
 & .\increment_version.ps1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "✗ Failed to increment version" -ForegroundColor Red
+    Write-Host "[ERROR] Failed to increment version" -ForegroundColor Red
     exit 1
 }
 Write-Host ""
@@ -17,27 +17,27 @@ Write-Host ""
 Write-Host "[2/4] Getting Flutter dependencies..." -ForegroundColor Yellow
 flutter pub get
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "✗ Failed to get dependencies" -ForegroundColor Red
+    Write-Host "[ERROR] Failed to get dependencies" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ Dependencies updated" -ForegroundColor Green
+Write-Host "[OK] Dependencies updated" -ForegroundColor Green
 Write-Host ""
 
 # Step 3: Clean build
 Write-Host "[3/4] Cleaning previous build..." -ForegroundColor Yellow
 flutter clean
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "✗ Failed to clean" -ForegroundColor Red
+    Write-Host "[ERROR] Failed to clean" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ Build cleaned" -ForegroundColor Green
+Write-Host "[OK] Build cleaned" -ForegroundColor Green
 Write-Host ""
 
 # Step 4: Build APK
 Write-Host "[4/4] Building release APK..." -ForegroundColor Yellow
 flutter build apk --release
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "✗ Build failed" -ForegroundColor Red
+    Write-Host "[ERROR] Build failed" -ForegroundColor Red
     exit 1
 }
 Write-Host ""
