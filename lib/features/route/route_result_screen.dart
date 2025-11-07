@@ -252,19 +252,41 @@ class RouteResultScreen extends ConsumerWidget {
       }
       
       // Build Google Maps URL with directions for multiple places
-      final origin = result.route.first;
-      final destination = result.route.last;
       
-      // Build waypoints (all places except first and last)
-      final waypoints = <String>[];
-      for (int i = 1; i < result.route.length - 1; i++) {
-        final place = result.route[i];
-        waypoints.add('${place.latitude},${place.longitude}');
+      // Determine origin based on starting location
+      String originCoords;
+      List<String> waypoints = [];
+      
+      if (result.startingLocation != null && 
+          result.startingLocation!['type'] == 'gps' &&
+          result.startingLocation!['latitude'] != null) {
+        // Use GPS coordinates as origin
+        final lat = result.startingLocation!['latitude'];
+        final lng = result.startingLocation!['longitude'];
+        originCoords = '$lat,$lng';
+        
+        // All route places become waypoints except the last (destination)
+        for (int i = 0; i < result.route.length - 1; i++) {
+          final place = result.route[i];
+          waypoints.add('${place.latitude},${place.longitude}');
+        }
+      } else {
+        // Use first place as origin
+        final origin = result.route.first;
+        originCoords = '${origin.latitude},${origin.longitude}';
+        
+        // Build waypoints (all places except first and last)
+        for (int i = 1; i < result.route.length - 1; i++) {
+          final place = result.route[i];
+          waypoints.add('${place.latitude},${place.longitude}');
+        }
       }
+      
+      final destination = result.route.last;
       
       // Construct Google Maps URL
       String url = 'https://www.google.com/maps/dir/?api=1';
-      url += '&origin=${origin.latitude},${origin.longitude}';
+      url += '&origin=$originCoords';
       url += '&destination=${destination.latitude},${destination.longitude}';
       
       if (waypoints.isNotEmpty) {
@@ -275,8 +297,18 @@ class RouteResultScreen extends ConsumerWidget {
       final travelMode = result.transportMode ?? 'driving';
       url += '&travelmode=$travelMode';
       
-      print('Opening Google Maps URL: $url'); // Debug
-      print('Transport mode: $travelMode'); // Debug
+      // Debug logging
+      print('=== Google Maps Debug ===');
+      print('Transport mode: $travelMode');
+      print('Starting location type: ${result.startingLocation?['type']}');
+      if (result.startingLocation?['type'] == 'gps') {
+        print('GPS Origin: ${result.startingLocation?['latitude']}, ${result.startingLocation?['longitude']}');
+      }
+      print('Origin: $originCoords');
+      print('Destination: ${destination.latitude},${destination.longitude}');
+      print('Waypoints: ${waypoints.length}');
+      print('Full URL: $url');
+      print('========================');
       
       final uri = Uri.parse(url);
       

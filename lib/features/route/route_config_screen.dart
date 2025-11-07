@@ -43,6 +43,7 @@ class RouteConfigScreen extends ConsumerStatefulWidget {
 class _RouteConfigScreenState extends ConsumerState<RouteConfigScreen> {
   final TextEditingController _addressController = TextEditingController();
   bool _isLoadingLocation = false;
+  Position? _currentPosition; // Store GPS position
 
   @override
   void dispose() {
@@ -68,12 +69,19 @@ class _RouteConfigScreenState extends ConsumerState<RouteConfigScreen> {
       }
 
       // Get current position
-      final position = await Geolocator.getCurrentPosition();
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      
+      // Store the position
+      setState(() {
+        _currentPosition = position;
+      });
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Location acquired: ${position.latitude}, ${position.longitude}'),
+            content: Text('Location acquired: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}'),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
@@ -137,12 +145,25 @@ class _RouteConfigScreenState extends ConsumerState<RouteConfigScreen> {
       // Prepare starting location data
       Map<String, dynamic>? startingLocationData;
       if (startingLocationType == StartingLocationType.currentLocation) {
-        // TODO: Get actual GPS coordinates
-        startingLocationData = {
-          'type': 'gps',
-          'latitude': null,
-          'longitude': null,
-        };
+        if (_currentPosition != null) {
+          startingLocationData = {
+            'type': 'gps',
+            'latitude': _currentPosition!.latitude,
+            'longitude': _currentPosition!.longitude,
+          };
+        } else {
+          // No GPS position acquired yet
+          if (mounted) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please get your location first'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return; // Don't proceed without GPS
+        }
       } else if (startingLocationType == StartingLocationType.customAddress) {
         startingLocationData = {
           'type': 'custom',
