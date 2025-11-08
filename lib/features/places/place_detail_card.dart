@@ -3,9 +3,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/place.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/services/wikipedia_service.dart';
 
 /// A detailed card showing place information with images
-class PlaceDetailCard extends StatelessWidget {
+class PlaceDetailCard extends StatefulWidget {
   final Place place;
   final String languageCode;
 
@@ -16,9 +17,71 @@ class PlaceDetailCard extends StatelessWidget {
   });
 
   @override
+  State<PlaceDetailCard> createState() => _PlaceDetailCardState();
+}
+
+class _PlaceDetailCardState extends State<PlaceDetailCard> {
+  final WikipediaService _wikipediaService = WikipediaService();
+  Place? _enrichedPlace;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWikipediaData();
+  }
+
+  Future<void> _loadWikipediaData() async {
+    // If place already has images and description, no need to fetch
+    if (widget.place.imageUrls != null && 
+        widget.place.imageUrls!.isNotEmpty && 
+        widget.place.description != null) {
+      setState(() {
+        _enrichedPlace = widget.place;
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      print('Loading Wikipedia data for: ${widget.place.name}');
+      final wikiData = await _wikipediaService.fetchPlaceDetails(
+        widget.place.name,
+        language: widget.languageCode,
+      );
+
+      if (wikiData != null && mounted) {
+        setState(() {
+          _enrichedPlace = widget.place.copyWith(
+            description: wikiData['description'] as String?,
+            imageUrls: wikiData['imageUrls'] as List<String>?,
+            wikipediaUrl: wikiData['wikipediaUrl'] as String?,
+          );
+          _isLoading = false;
+        });
+        print('✓ Loaded Wikipedia data for ${widget.place.name}');
+      } else if (mounted) {
+        setState(() {
+          _enrichedPlace = widget.place;
+          _isLoading = false;
+        });
+        print('✗ No Wikipedia data found for ${widget.place.name}');
+      }
+    } catch (e) {
+      print('Error loading Wikipedia data: $e');
+      if (mounted) {
+        setState(() {
+          _enrichedPlace = widget.place;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final localizedName = place.getLocalizedName(languageCode);
+    final place = _enrichedPlace ?? widget.place;
+    final localizedName = place.getLocalizedName(widget.languageCode);
     
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -34,7 +97,28 @@ class PlaceDetailCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Image carousel or single image
-            _buildImageSection(context),
+            Stack(
+              children: [
+                _buildImageSection(context, place),
+                // Loading indicator overlay
+                if (_isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(AppSpacing.radiusLg),
+                        ),
+                      ),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             
             // Content
             Expanded(
@@ -155,7 +239,7 @@ class PlaceDetailCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImageSection(BuildContext context) {
+  Widget _buildImageSection(BuildContext context, Place place) {
     final images = place.imageUrls ?? (place.imageUrl != null ? [place.imageUrl!] : <String>[]);
     
     if (images.isEmpty) {
