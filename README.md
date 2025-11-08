@@ -77,10 +77,18 @@ flutter run
 
 ### Build for Production
 
-**Android (Automated):**
+**Android (Automated with GitHub Release):**
+```powershell
+# Windows PowerShell - Auto-increments version + creates GitHub release
+.\build_apk.ps1
+# Choose option 4, then select version type (patch/minor/major)
+```
+
+**Android (Automated - Local Only):**
 ```powershell
 # Windows PowerShell - Auto-increments version
 .\build_apk.ps1
+# Choose option 1 for release APK
 ```
 
 **Android (Manual):**
@@ -94,6 +102,8 @@ flutter build appbundle --release
 ```bash
 flutter build ios --release
 ```
+
+**For detailed release instructions, see [RELEASE.md](RELEASE.md)**
 
 ## 📱 Screenshots
 
