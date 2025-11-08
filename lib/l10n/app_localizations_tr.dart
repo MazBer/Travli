@@ -200,4 +200,13 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get transitLimitation =>
       'Note: Transit mode shows direct route only (no stops)';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get readMoreWikipedia => 'Read more on Wikipedia';
+
+  @override
+  String get noImageAvailable => 'No image available';
 }

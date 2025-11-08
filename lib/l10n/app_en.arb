@@ -318,5 +318,17 @@
   "transitLimitation": "Note: Transit mode shows direct route only (no stops)",
   "@transitLimitation": {
     "description": "Warning about transit mode limitation with waypoints"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close button label"
+  },
+  "readMoreWikipedia": "Read more on Wikipedia",
+  "@readMoreWikipedia": {
+    "description": "Button to open Wikipedia article"
+  },
+  "noImageAvailable": "No image available",
+  "@noImageAvailable": {
+    "description": "Message when place has no images"
   }
 }

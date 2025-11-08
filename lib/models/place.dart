@@ -7,9 +7,12 @@ class Place {
   final String category;
   final double latitude;
   final double longitude;
-  final String? imageUrl;
+  final String? imageUrl; // Primary image (backward compatibility)
+  final List<String>? imageUrls; // Multiple images
   final double? rating;
   final String? address;
+  final String? wikipediaUrl; // Wikipedia article URL
+  final String? wikidataId; // Wikidata ID for fetching images
   final bool isSelected;
 
   Place({
@@ -22,8 +25,11 @@ class Place {
     required this.latitude,
     required this.longitude,
     this.imageUrl,
+    this.imageUrls,
     this.rating,
     this.address,
+    this.wikipediaUrl,
+    this.wikidataId,
     this.isSelected = false,
   });
   
@@ -78,6 +84,14 @@ class Place {
     );
   }
 
+  /// Get primary image URL (uses first from imageUrls or fallback to imageUrl)
+  String? get primaryImageUrl {
+    if (imageUrls != null && imageUrls!.isNotEmpty) {
+      return imageUrls!.first;
+    }
+    return imageUrl;
+  }
+
   // Create a copy with updated fields
   Place copyWith({
     int? id,
@@ -89,8 +103,11 @@ class Place {
     double? latitude,
     double? longitude,
     String? imageUrl,
+    List<String>? imageUrls,
     double? rating,
     String? address,
+    String? wikipediaUrl,
+    String? wikidataId,
     bool? isSelected,
   }) {
     return Place(
@@ -103,8 +120,11 @@ class Place {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       imageUrl: imageUrl ?? this.imageUrl,
+      imageUrls: imageUrls ?? this.imageUrls,
       rating: rating ?? this.rating,
       address: address ?? this.address,
+      wikipediaUrl: wikipediaUrl ?? this.wikipediaUrl,
+      wikidataId: wikidataId ?? this.wikidataId,
       isSelected: isSelected ?? this.isSelected,
     );
   }

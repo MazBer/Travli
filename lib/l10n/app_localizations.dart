@@ -481,6 +481,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Note: Transit mode shows direct route only (no stops)'**
   String get transitLimitation;
+
+  /// Close button label
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Button to open Wikipedia article
+  ///
+  /// In en, this message translates to:
+  /// **'Read more on Wikipedia'**
+  String get readMoreWikipedia;
+
+  /// Message when place has no images
+  ///
+  /// In en, this message translates to:
+  /// **'No image available'**
+  String get noImageAvailable;
 }
 
 class _AppLocalizationsDelegate

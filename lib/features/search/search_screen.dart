@@ -6,6 +6,7 @@ import '../../core/providers/api_providers.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/services/search_history_service.dart';
 import '../../models/city.dart';
+import '../places/place_detail_card.dart';
 import '../route/route_config_screen.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -492,6 +493,15 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                             {...current, index};
                         }
                       },
+                      onLongPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => PlaceDetailCard(
+                            place: place,
+                            languageCode: currentLanguage,
+                          ),
+                        );
+                      },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,
@@ -521,18 +531,67 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                         ),
                         child: Row(
                           children: [
-                            Container(
-                              width: AppSpacing.avatarMd,
-                              height: AppSpacing.avatarMd,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                              ),
-                              child: Icon(
-                                Icons.place,
-                                size: 24,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                            // Image thumbnail or icon
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              child: place.primaryImageUrl != null
+                                ? Image.network(
+                                    place.primaryImageUrl!,
+                                    width: AppSpacing.avatarMd,
+                                    height: AppSpacing.avatarMd,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: AppSpacing.avatarMd,
+                                        height: AppSpacing.avatarMd,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                        ),
+                                        child: Icon(
+                                          Icons.place,
+                                          size: 24,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      );
+                                    },
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        width: AppSpacing.avatarMd,
+                                        height: AppSpacing.avatarMd,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.surfaceVariant,
+                                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                        ),
+                                        child: Center(
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              value: loadingProgress.expectedTotalBytes != null
+                                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                                                  : null,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Container(
+                                    width: AppSpacing.avatarMd,
+                                    height: AppSpacing.avatarMd,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                    ),
+                                    child: Icon(
+                                      Icons.place,
+                                      size: 24,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
                             Expanded(
