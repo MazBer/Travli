@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Project documentation and memory bank (not needed in repo)
+memory-bank/
+docs/
+*.md
+!README.md
+!CHANGELOG.md
+!LICENSE.md

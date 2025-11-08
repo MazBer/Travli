@@ -29,5 +29,23 @@ final cityPlacesProvider = FutureProvider<List<Place>>((ref) async {
   if (city == null) return [];
   
   final apiService = ref.watch(apiServiceProvider);
-  return await apiService.getPlacesForCity(city, cityId: city.id);
+  final places = await apiService.getPlacesForCity(city, cityId: city.id);
+  
+  // Enrich first 10 places with Wikipedia data (images, descriptions)
+  print('Enriching places with Wikipedia data...');
+  final enrichedPlaces = <Place>[];
+  
+  for (int i = 0; i < places.length; i++) {
+    if (i < 10) {
+      // Enrich first 10 places
+      final enriched = await apiService.enrichPlaceWithWikipedia(places[i]);
+      enrichedPlaces.add(enriched);
+    } else {
+      // Keep rest as-is for now
+      enrichedPlaces.add(places[i]);
+    }
+  }
+  
+  print('Enrichment complete: ${enrichedPlaces.where((p) => p.imageUrls != null && p.imageUrls!.isNotEmpty).length} places have images');
+  return enrichedPlaces;
 });

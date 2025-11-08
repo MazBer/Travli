@@ -3,9 +3,11 @@ import '../../models/city.dart';
 import '../../models/place.dart';
 import '../data/popular_cities.dart';
 import '../data/offline_places.dart';
+import 'wikipedia_service.dart';
 
 class ApiService {
   final Dio _dio = Dio();
+  final WikipediaService _wikipediaService = WikipediaService();
   
   // Multiple Overpass API servers for fallback
   static const List<String> _overpassServers = [
@@ -20,6 +22,33 @@ class ApiService {
     };
     _dio.options.connectTimeout = const Duration(seconds: 30);
     _dio.options.receiveTimeout = const Duration(seconds: 60);
+  }
+
+  /// Enrich a place with Wikipedia data (images, description, etc.)
+  Future<Place> enrichPlaceWithWikipedia(Place place, {String language = 'en'}) async {
+    try {
+      print('Fetching Wikipedia data for: ${place.name}');
+      
+      final wikiData = await _wikipediaService.fetchPlaceDetails(place.name, language: language);
+      
+      if (wikiData != null) {
+        print('✓ Found Wikipedia data for ${place.name}');
+        print('  Images: ${(wikiData['imageUrls'] as List?)?.length ?? 0}');
+        print('  Description: ${wikiData['description'] != null ? 'Yes' : 'No'}');
+        
+        return place.copyWith(
+          description: wikiData['description'] as String? ?? place.description,
+          imageUrls: wikiData['imageUrls'] as List<String>? ?? place.imageUrls,
+          wikipediaUrl: wikiData['wikipediaUrl'] as String? ?? place.wikipediaUrl,
+        );
+      }
+      
+      print('✗ No Wikipedia data found for ${place.name}');
+      return place;
+    } catch (e) {
+      print('Error enriching place with Wikipedia: $e');
+      return place;
+    }
   }
 
   /// Search for cities by name
