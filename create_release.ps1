@@ -149,6 +149,15 @@ Write-Host ""
 # Step 7: Create GitHub Release
 Write-Host "[7/7] Creating GitHub Release..." -ForegroundColor Yellow
 
+# Check if previous version tag exists
+$previousTag = "v$oldVersion"
+$tagExists = git tag -l $previousTag
+$changelogLine = ""
+
+if ($tagExists) {
+    $changelogLine = "`n---`n**Full Changelog**: https://github.com/MazBer/Travli/compare/$previousTag...$tagName"
+}
+
 # Generate release notes
 $releaseNotes = @"
 ## 🚀 Travli v$newVersion
@@ -173,10 +182,7 @@ Download the APK file below and install on your Android device.
 - **Build:** $build
 - **Flutter:** 3.9.2
 - **Minimum Android:** 5.0 (API 21)
-- **Target Android:** 14 (API 34)
-
----
-**Full Changelog**: https://github.com/MazBer/Travli/compare/v$oldVersion...v$newVersion
+- **Target Android:** 14 (API 34)$changelogLine
 "@
 
 # Create release with APK
