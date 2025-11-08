@@ -9,6 +9,57 @@ class WikipediaService {
     _dio.options.receiveTimeout = const Duration(seconds: 15);
   }
 
+  /// Fetch only thumbnail image (lightweight, fast)
+  Future<Map<String, dynamic>?> fetchPlaceThumbnail(String placeName, {String language = 'en'}) async {
+    try {
+      // Search for the article
+      final searchResponse = await _dio.get(
+        'https://$language.wikipedia.org/w/api.php',
+        queryParameters: {
+          'action': 'query',
+          'format': 'json',
+          'list': 'search',
+          'srsearch': placeName,
+          'srlimit': 1,
+        },
+      );
+
+      final searchResults = searchResponse.data['query']?['search'] as List?;
+      if (searchResults == null || searchResults.isEmpty) {
+        return null;
+      }
+
+      final pageId = searchResults[0]['pageid'] as int;
+
+      // Get only thumbnail (fast)
+      final pageResponse = await _dio.get(
+        'https://$language.wikipedia.org/w/api.php',
+        queryParameters: {
+          'action': 'query',
+          'format': 'json',
+          'pageids': pageId,
+          'prop': 'pageimages',
+          'piprop': 'thumbnail',
+          'pithumbsize': 300,
+        },
+      );
+
+      final pages = pageResponse.data['query']?['pages'] as Map?;
+      if (pages == null) return null;
+
+      final pageData = pages[pageId.toString()] as Map?;
+      if (pageData == null) return null;
+
+      final thumbnail = pageData['thumbnail']?['source'] as String?;
+      
+      return {
+        'thumbnail': thumbnail,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// Fetch place details from Wikipedia by name
   Future<Map<String, dynamic>?> fetchPlaceDetails(String placeName, {String language = 'en'}) async {
     try {

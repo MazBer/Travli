@@ -25,8 +25,26 @@ class ApiService {
   }
 
   /// Enrich a place with Wikipedia data (images, description, etc.)
-  Future<Place> enrichPlaceWithWikipedia(Place place, {String language = 'en'}) async {
+  /// Set [thumbnailOnly] to true for faster loading (fetches only primary image)
+  Future<Place> enrichPlaceWithWikipedia(
+    Place place, {
+    String language = 'en',
+    bool thumbnailOnly = false,
+  }) async {
     try {
+      if (thumbnailOnly) {
+        // Fast mode: Only fetch primary thumbnail
+        final wikiData = await _wikipediaService.fetchPlaceThumbnail(place.name, language: language);
+        
+        if (wikiData != null && wikiData['thumbnail'] != null) {
+          return place.copyWith(
+            imageUrl: wikiData['thumbnail'] as String?,
+          );
+        }
+        return place;
+      }
+      
+      // Full mode: Fetch everything (images, description, etc.)
       print('Fetching Wikipedia data for: ${place.name}');
       
       final wikiData = await _wikipediaService.fetchPlaceDetails(place.name, language: language);

@@ -31,6 +31,25 @@ final cityPlacesProvider = FutureProvider<List<Place>>((ref) async {
   final apiService = ref.watch(apiServiceProvider);
   final places = await apiService.getPlacesForCity(city, cityId: city.id);
   
-  // Don't enrich here - will load on-demand when detail card opens
-  return places;
+  // Lightweight enrichment: Fetch only primary image for first 20 places (for thumbnails)
+  // Full data (description, multiple images) loads on-demand when detail card opens
+  print('Fetching thumbnails for first 20 places...');
+  final enrichedPlaces = <Place>[];
+  
+  for (int i = 0; i < places.length; i++) {
+    if (i < 20) {
+      // Fetch only thumbnail (lightweight)
+      final enriched = await apiService.enrichPlaceWithWikipedia(
+        places[i],
+        thumbnailOnly: true,
+      );
+      enrichedPlaces.add(enriched);
+    } else {
+      // Keep rest as-is
+      enrichedPlaces.add(places[i]);
+    }
+  }
+  
+  print('Thumbnails loaded: ${enrichedPlaces.where((p) => p.primaryImageUrl != null).length} places have images');
+  return enrichedPlaces;
 });
