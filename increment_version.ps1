@@ -28,6 +28,7 @@ if ($content -match 'version:\s*(\d+)\.(\d+)\.(\d+)\+(\d+)') {
     
     Write-Host "[OK] Version updated: $oldVersion -> $newVersion" -ForegroundColor Green
     Write-Host "  Build number: $build -> $newBuild" -ForegroundColor Cyan
+    exit 0
 } else {
     Write-Host "[ERROR] Could not find version in pubspec.yaml" -ForegroundColor Red
     exit 1

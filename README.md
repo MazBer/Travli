@@ -10,10 +10,13 @@ An intelligent mobile app that optimizes your travel routes using Ant Colony Opt
 
 ## ✨ Features
 
-### 🎯 Core Features (Phase 1 - ✅ Completed)
+### 🎯 Core Features
 - **Smart City Search** - Find cities worldwide with Nominatim API
-- **Place Discovery** - Browse tourist attractions, museums, landmarks
+- **Place Discovery** - Browse tourist attractions, museums, landmarks with images
+- **Wikipedia Integration** - Automatic images and descriptions from Wikipedia
 - **Route Optimization** - Ant Colony Optimization algorithm for efficient routes
+- **Transport Modes** - Walking 🚶, Driving 🚗, Transit 🚌, Cycling 🚴
+- **Starting Location** - Current GPS location, custom address, or first place
 - **Offline Support** - Works without internet for 10 major cities
 - **Google Maps Integration** - Open optimized routes directly in Maps
 - **Search History** - Quick access to recent searches
@@ -33,12 +36,13 @@ An intelligent mobile app that optimizes your travel routes using Ant Colony Opt
 - 🇪🇸 Español
 - 🇫🇷 Français
 
-### 🔥 Coming Soon (Phase 2)
-- **Starting Location Options** - Choose current location or custom address
-- **Route Type Selection** - Walking 🚶, Driving 🚗, Transit 🚌, Cycling 🚴
+### 🔥 Coming Soon
 - **Save Routes** - Save favorite routes for later
 - **Share Routes** - Share with friends and family
+- **Place Details** - Ratings, reviews, opening hours
+- **Route Editing** - Reorder or remove places
 - **Expanded Offline** - 50+ cities available offline
+- **Multi-day Planning** - Plan trips spanning multiple days
 
 ## 🚀 Getting Started
 
@@ -73,7 +77,13 @@ flutter run
 
 ### Build for Production
 
-**Android:**
+**Android (Automated):**
+```powershell
+# Windows PowerShell - Auto-increments version
+.\build_apk.ps1
+```
+
+**Android (Manual):**
 ```bash
 flutter build apk --release
 # or for app bundle
@@ -122,6 +132,7 @@ lib/
 ### APIs Used
 - **Nominatim (OpenStreetMap)** - City search and geocoding
 - **Overpass API** - Places and POI data (3 fallback servers)
+- **Wikipedia API** - Place images, descriptions, and articles
 - **Google Maps** - Route visualization and navigation
 
 ### Network Resilience
@@ -163,13 +174,16 @@ Add new languages:
 - [x] Offline places database (10 cities)
 - [x] Settings with app info
 
-### Phase 2: Enhanced Features 🔄 IN PROGRESS
-- [ ] **Starting location options** (GPS/custom address)
-- [ ] **Route type selection** (walk/drive/transit/bike)
-- [ ] Adjust optimization based on transport mode
+### Phase 2: Enhanced Features ✅ COMPLETED (Nov 8, 2025)
+- [x] **Starting location options** (GPS/custom address/first place)
+- [x] **Route type selection** (walk/drive/transit/bike)
+- [x] **Wikipedia integration** (images and descriptions)
+- [x] **Place detail cards** (long-press to view)
+- [x] **Transport mode optimization** (speed-based time estimates)
+- [x] **Transit mode handling** (Google Maps API limitations)
+- [x] **Automated build scripts** (version increment + APK build)
 - [ ] Save and share routes
 - [ ] Expand offline database (50+ cities)
-- [ ] Recent history tracking
 - [ ] Performance optimization
 
 ### Phase 3: Advanced Features ⏳ PLANNED
