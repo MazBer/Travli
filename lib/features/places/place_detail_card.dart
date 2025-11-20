@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/place.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
@@ -278,38 +279,29 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppSpacing.radiusLg),
         ),
-        child: Image.network(
-          images.first,
+        child: CachedNetworkImage(
+          imageUrl: images.first,
           height: 200,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              height: 200,
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Center(
-                child: Icon(
-                  Icons.broken_image,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-                ),
+          placeholder: (context, url) => Container(
+            height: 200,
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            height: 200,
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            child: Center(
+              child: Icon(
+                Icons.broken_image,
+                size: 48,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
               ),
-            );
-          },
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              height: 200,
-              color: Theme.of(context).colorScheme.surfaceVariant,
-              child: Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
-              ),
-            );
-          },
+            ),
+          ),
         ),
       );
     }
@@ -326,24 +318,29 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
             ),
             child: Stack(
               children: [
-                Image.network(
-                  images[index],
+                CachedNetworkImage(
+                  imageUrl: images[index],
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 200,
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      child: Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 48,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-                        ),
+                  placeholder: (context, url) => Container(
+                    height: 200,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    height: 200,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
                 // Image counter
                 Positioned(

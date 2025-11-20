@@ -37,6 +37,8 @@ dependencies:
   
   # Image Caching
   cached_network_image: ^3.3.0
+  # Connectivity
+  connectivity_plus: ^6.0.0
   
   # Utilities
   intl: ^0.20.2

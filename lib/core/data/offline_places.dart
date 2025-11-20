@@ -61,9 +61,18 @@ class OfflinePlaces {
         print('[OfflinePlaces] ✓ Matched: Athens');
         places = _getAthensPlaces(cityId);
         break;
+      case 'lisbon':
+      case 'lisboa':
+        print('[OfflinePlaces] ✓ Matched: Lisbon');
+        places = _getLisbonPlaces(cityId);
+        break;
+      case 'budapest':
+        print('[OfflinePlaces] ✓ Matched: Budapest');
+        places = _getBudapestPlaces(cityId);
+        break;
       default:
         print('[OfflinePlaces] ✗ NO MATCH for "$normalizedName"');
-        print('[OfflinePlaces] Available: rome, paris, london, barcelona, istanbul, amsterdam, berlin, vienna, prague, athens');
+        print('[OfflinePlaces] Available: rome, paris, london, barcelona, istanbul, amsterdam, berlin, vienna, prague, athens, lisbon, budapest');
         places = [];
     }
     
@@ -199,6 +208,144 @@ class OfflinePlaces {
         latitude: 41.8992,
         longitude: 12.4731,
         description: 'Public square with Baroque fountains',
+        rating: 4.7,
+      ),
+    ];
+  }
+
+  static List<Place> _getLisbonPlaces(int cityId) {
+    return [
+      Place(
+        cityId: cityId,
+        name: 'Belém Tower',
+        localizedNames: {
+          'pt': 'Torre de Belém',
+          'tr': 'Belem Kulesi',
+          'es': 'Torre de Belém',
+          'fr': 'Tour de Belém',
+          'de': 'Torre de Belém',
+        },
+        category: 'Historic Site',
+        latitude: 38.6916,
+        longitude: -9.2159,
+        description: 'Iconic fortified tower on the Tagus River waterfront.',
+        rating: 4.8,
+      ),
+      Place(
+        cityId: cityId,
+        name: 'Jerónimos Monastery',
+        localizedNames: {
+          'pt': 'Mosteiro dos Jerónimos',
+          'tr': 'Jerónimos Manastırı',
+          'es': 'Monasterio de los Jerónimos',
+          'fr': 'Monastère des Hiéronymites',
+          'de': 'Jerónimos-Kloster',
+        },
+        category: 'Historic Site',
+        latitude: 38.6981,
+        longitude: -9.2065,
+        description: 'UNESCO-listed monastery and masterpiece of Manueline architecture.',
+        rating: 4.9,
+      ),
+      Place(
+        cityId: cityId,
+        name: 'Alfama District',
+        localizedNames: {
+          'pt': 'Alfama',
+          'tr': 'Alfama Semti',
+          'es': 'Barrio de Alfama',
+          'fr': 'Quartier de l\'Alfama',
+          'de': 'Alfama',
+        },
+        category: 'Attraction',
+        latitude: 38.7139,
+        longitude: -9.1303,
+        description: 'Oldest district of Lisbon with narrow streets and viewpoints.',
+        rating: 4.7,
+      ),
+      Place(
+        cityId: cityId,
+        name: 'Praça do Comércio',
+        localizedNames: {
+          'pt': 'Praça do Comércio',
+          'tr': 'Ticaret Meydanı',
+          'es': 'Plaza del Comercio',
+          'fr': 'Place du Commerce',
+          'de': 'Praça do Comércio',
+        },
+        category: 'Attraction',
+        latitude: 38.7078,
+        longitude: -9.1366,
+        description: 'Grand riverside square surrounded by classical buildings.',
+        rating: 4.6,
+      ),
+    ];
+  }
+
+  static List<Place> _getBudapestPlaces(int cityId) {
+    return [
+      Place(
+        cityId: cityId,
+        name: 'Buda Castle',
+        localizedNames: {
+          'hu': 'Budavári Palota',
+          'tr': 'Buda Kalesi',
+          'es': 'Castillo de Buda',
+          'fr': 'Château de Buda',
+          'de': 'Burgpalast',
+        },
+        category: 'Historic Site',
+        latitude: 47.4969,
+        longitude: 19.0399,
+        description: 'Historic castle and palace complex overlooking the Danube.',
+        rating: 4.8,
+      ),
+      Place(
+        cityId: cityId,
+        name: 'Parliament Building',
+        localizedNames: {
+          'hu': 'Országház',
+          'tr': 'Macaristan Parlamentosu',
+          'es': 'Parlamento de Hungría',
+          'fr': 'Parlement hongrois',
+          'de': 'Ungarisches Parlament',
+        },
+        category: 'Historic Site',
+        latitude: 47.5076,
+        longitude: 19.0452,
+        description: 'Iconic neo-Gothic parliament building on the Danube.',
+        rating: 4.9,
+      ),
+      Place(
+        cityId: cityId,
+        name: 'Fisherman\'s Bastion',
+        localizedNames: {
+          'hu': 'Halászbástya',
+          'tr': 'Balıkçı Tabyası',
+          'es': 'Bastión de los Pescadores',
+          'fr': 'Bastion des pêcheurs',
+          'de': 'Fischerbastei',
+        },
+        category: 'Viewpoint',
+        latitude: 47.5022,
+        longitude: 19.0349,
+        description: 'Fairytale-like terrace with panoramic views over Budapest.',
+        rating: 4.8,
+      ),
+      Place(
+        cityId: cityId,
+        name: 'Széchenyi Thermal Bath',
+        localizedNames: {
+          'hu': 'Széchenyi Gyógyfürdő',
+          'tr': 'Seçeni Kaplıcaları',
+          'es': 'Balneario Széchenyi',
+          'fr': 'Bains Széchenyi',
+          'de': 'Széchenyi-Heilbad',
+        },
+        category: 'Attraction',
+        latitude: 47.5189,
+        longitude: 19.0821,
+        description: 'One of Europe\'s largest spa complexes with outdoor pools.',
         rating: 4.7,
       ),
     ];

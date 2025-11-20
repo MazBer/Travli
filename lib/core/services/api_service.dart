@@ -1,13 +1,18 @@
 import 'package:dio/dio.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../models/city.dart';
 import '../../models/place.dart';
 import '../data/popular_cities.dart';
 import '../data/offline_places.dart';
 import 'wikipedia_service.dart';
+import '../../repositories/city_repository.dart';
+import '../../repositories/place_repository.dart';
 
 class ApiService {
   final Dio _dio = Dio();
   final WikipediaService _wikipediaService = WikipediaService();
+  final CityRepository _cityRepository = CityRepository();
+  final PlaceRepository _placeRepository = PlaceRepository();
   
   // Multiple Overpass API servers for fallback
   static const List<String> _overpassServers = [
@@ -201,12 +206,49 @@ class ApiService {
     return 0;
   }
 
+  Future<int> _getOrCreateCityId(City city, int? cityId) async {
+    if (cityId != null && cityId > 0) {
+      return cityId;
+    }
+
+    final dbCity = await _cityRepository.getOrCreate(city);
+    return dbCity.id ?? 0;
+  }
+
   /// Get places/attractions for a city
   Future<List<Place>> getPlacesForCity(City city, {int? cityId}) async {
     print('=== FETCHING PLACES FOR CITY ===');
     print('City: ${city.name}');
     print('Coordinates: ${city.latitude}, ${city.longitude}');
     print('City ID: $cityId');
+    final effectiveCityId = await _getOrCreateCityId(city, cityId);
+    print('Effective city ID (DB): $effectiveCityId');
+
+    final connectivity = Connectivity();
+    final connectivityResults = await connectivity.checkConnectivity();
+    final isOffline = connectivityResults.isEmpty ||
+        connectivityResults.every((result) => result == ConnectivityResult.none);
+
+    if (isOffline) {
+      print('Device is offline, trying cached places from database...');
+      final cachedPlaces = await _placeRepository.getByCity(effectiveCityId);
+      if (cachedPlaces.isNotEmpty) {
+        print('✓ Using ${cachedPlaces.length} cached places from local database');
+        return cachedPlaces;
+      }
+
+      print('No cached places in database, trying built-in offline places...');
+      final offlinePlaces =
+          OfflinePlaces.getPlacesForCity(city.name, effectiveCityId);
+      if (offlinePlaces.isNotEmpty) {
+        print('✓ Using ${offlinePlaces.length} built-in offline places');
+        await _placeRepository.deleteByCity(effectiveCityId);
+        await _placeRepository.createBatch(offlinePlaces);
+        return offlinePlaces;
+      }
+
+      print('✗ No cached or built-in offline places available for ${city.name}');
+    }
     
     // Define the search radius (in meters)
     const radius = 10000; // 10km
@@ -340,7 +382,7 @@ class ApiService {
         final popularityScore = _calculatePopularityScore(tags, element);
 
         places.add(Place(
-          cityId: cityId ?? 0,
+          cityId: effectiveCityId,
           name: name,
           localizedNames: localizedNames,
           category: category,
@@ -362,6 +404,10 @@ class ApiService {
       print('Total places processed: ${places.length}');
       print('=== PLACES FETCH COMPLETE ===');
       
+      await _placeRepository.deleteByCity(effectiveCityId);
+      await _placeRepository.createBatch(places);
+      print('Saved ${places.length} places to local database for city $effectiveCityId');
+
       return places; // Return all places for pagination
     } catch (e, stackTrace) {
       print('!!! ERROR FETCHING PLACES FROM API !!!');
@@ -375,7 +421,8 @@ class ApiService {
       print('City ID: $cityId');
       print('Normalized name: "${city.name.toLowerCase()}"');
       
-      final offlinePlaces = OfflinePlaces.getPlacesForCity(city.name, cityId ?? 0);
+      final offlinePlaces =
+          OfflinePlaces.getPlacesForCity(city.name, effectiveCityId);
       
       print('Offline places found: ${offlinePlaces.length}');
       
@@ -383,11 +430,14 @@ class ApiService {
         print('✓✓✓ SUCCESS! Found ${offlinePlaces.length} places in offline database');
         print('Using offline data for ${city.name}');
         print('First place: ${offlinePlaces.first.name}');
+        await _placeRepository.deleteByCity(effectiveCityId);
+        await _placeRepository.createBatch(offlinePlaces);
+        print('Saved ${offlinePlaces.length} offline places to local database');
         return offlinePlaces;
       }
       
       print('✗✗✗ FAILED! No offline data available for "${city.name}"');
-      print('Available cities: Rome, Paris, London, Barcelona, Istanbul, Amsterdam, Berlin, Vienna, Prague, Athens');
+      print('Available cities: Rome, Paris, London, Barcelona, Istanbul, Amsterdam, Berlin, Vienna, Prague, Athens, Lisbon, Budapest');
       
       // Provide helpful error message
       throw Exception(
@@ -395,7 +445,8 @@ class ApiService {
         'Network error and no offline data available.\n\n'
         'Cities with offline data:\n'
         'Rome, Paris, London, Barcelona, Istanbul,\n'
-        'Amsterdam, Berlin, Vienna, Prague, Athens'
+        'Amsterdam, Berlin, Vienna, Prague, Athens,\n'
+        'Lisbon, Budapest'
       );
     }
   }

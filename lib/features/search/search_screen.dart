@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/api_providers.dart';
 import '../../core/providers/language_provider.dart';
+import '../../core/providers/connectivity_provider.dart';
 import '../../core/services/search_history_service.dart';
 import '../../models/city.dart';
 import '../places/place_detail_card.dart';
@@ -334,6 +336,7 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
     final placesAsync = ref.watch(cityPlacesProvider);
     final selectedPlaces = ref.watch(selectedPlacesProvider);
     final currentLanguage = ref.watch(languageProvider);
+    final isOnline = ref.watch(isOnlineProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -354,6 +357,34 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
       ),
       body: Column(
         children: [
+          // Online / Offline status banner
+          if (!isOnline)
+            Container(
+              width: double.infinity,
+              color: Theme.of(context).colorScheme.errorContainer,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.wifi_off,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Offline mode: using cached or offline data when available',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           // Selection info capsule
           if (selectedPlaces.isNotEmpty)
             Center(
@@ -535,13 +566,27 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                               child: place.primaryImageUrl != null
-                                ? Image.network(
-                                    place.primaryImageUrl!,
-                                    width: AppSpacing.avatarMd,
-                                    height: AppSpacing.avatarMd,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
+                                  ? CachedNetworkImage(
+                                      imageUrl: place.primaryImageUrl!,
+                                      width: AppSpacing.avatarMd,
+                                      height: AppSpacing.avatarMd,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                        width: AppSpacing.avatarMd,
+                                        height: AppSpacing.avatarMd,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.surfaceVariant,
+                                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                        ),
+                                        child: const Center(
+                                          child: SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(strokeWidth: 2),
+                                          ),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) => Container(
                                         width: AppSpacing.avatarMd,
                                         height: AppSpacing.avatarMd,
                                         decoration: BoxDecoration(
@@ -553,45 +598,21 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
                                           size: 24,
                                           color: Theme.of(context).colorScheme.primary,
                                         ),
-                                      );
-                                    },
-                                    loadingBuilder: (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        width: AppSpacing.avatarMd,
-                                        height: AppSpacing.avatarMd,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.surfaceVariant,
-                                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                                        ),
-                                        child: Center(
-                                          child: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              value: loadingProgress.expectedTotalBytes != null
-                                                  ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                : Container(
-                                    width: AppSpacing.avatarMd,
-                                    height: AppSpacing.avatarMd,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                      ),
+                                    )
+                                  : Container(
+                                      width: AppSpacing.avatarMd,
+                                      height: AppSpacing.avatarMd,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                                      ),
+                                      child: Icon(
+                                        Icons.place,
+                                        size: 24,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
                                     ),
-                                    child: Icon(
-                                      Icons.place,
-                                      size: 24,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
                             Expanded(
@@ -654,15 +675,37 @@ class _CityPlacesScreenState extends ConsumerState<CityPlacesScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48),
+              Icon(
+                isOnline ? Icons.error_outline : Icons.wifi_off,
+                size: 48,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
               const SizedBox(height: 16),
-              Text('Error loading places'),
-              const SizedBox(height: 8),
               Text(
-                error.toString(),
-                style: Theme.of(context).textTheme.bodySmall,
+                isOnline ? 'Error loading places' : 'You are offline',
+                style: Theme.of(context).textTheme.titleMedium,
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 8),
+              if (!isOnline) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Text(
+                    'You can still use offline data for some cities:\nRome, Paris, London, Barcelona, Istanbul, Amsterdam, Berlin, Vienna, Prague, Athens.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ] else ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Text(
+                    error.toString(),
+                    style: Theme.of(context).textTheme.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
