@@ -4,7 +4,10 @@
 
 param(
     [ValidateSet('patch', 'minor', 'major')]
-    [string]$VersionType = 'patch'
+    [string]$VersionType = 'patch',
+
+    [ValidateSet('release', 'debug', 'both')]
+    [string]$BuildType = 'release'
 )
 
 Write-Host "`n=== Travli GitHub Release Creator ===" -ForegroundColor Cyan
@@ -79,32 +82,47 @@ if ($content -match 'version:\s*(\d+)\.(\d+)\.(\d+)\+(\d+)') {
     exit 1
 }
 
-# Step 2: Build APK
-Write-Host "[2/6] Building Release APK..." -ForegroundColor Yellow
+# Step 2: Build APK(s)
+Write-Host "[2/6] Building APK(s)..." -ForegroundColor Yellow
 flutter pub get | Out-Null
 flutter clean | Out-Null
-flutter build apk --release
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERROR] Build failed" -ForegroundColor Red
-    exit 1
+$releaseApkPath = "build\app\outputs\flutter-apk\app-release.apk"
+$debugApkPath   = "build\app\outputs\flutter-apk\app-debug.apk"
+
+if ($BuildType -eq 'release' -or $BuildType -eq 'both') {
+    Write-Host "  - Building RELEASE APK..." -ForegroundColor Yellow
+    flutter build apk --release
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[ERROR] Release build failed" -ForegroundColor Red
+        exit 1
+    }
 }
 
-Write-Host "[OK] APK built successfully" -ForegroundColor Green
+if ($BuildType -eq 'debug' -or $BuildType -eq 'both') {
+    Write-Host "  - Building DEBUG APK..." -ForegroundColor Yellow
+    flutter build apk --debug
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[ERROR] Debug build failed" -ForegroundColor Red
+        exit 1
+    }
+}
+
+Write-Host "[OK] APK build step completed" -ForegroundColor Green
 Write-Host ""
 
-# Step 3: Get APK info
-$apkPath = "build\app\outputs\flutter-apk\app-release.apk"
-if (-not (Test-Path $apkPath)) {
-    Write-Host "[ERROR] APK not found at $apkPath" -ForegroundColor Red
+# Step 3: Get APK info (primary asset = release if available, else debug)
+$primaryApkPath = if ($BuildType -eq 'debug') { $debugApkPath } else { $releaseApkPath }
+if (-not (Test-Path $primaryApkPath)) {
+    Write-Host "[ERROR] APK not found at $primaryApkPath" -ForegroundColor Red
     exit 1
 }
 
-$apkSize = (Get-Item $apkPath).Length / 1MB
+$apkSize = (Get-Item $primaryApkPath).Length / 1MB
 $apkSizeMB = [math]::Round($apkSize, 2)
 
 Write-Host "[3/6] APK Information" -ForegroundColor Yellow
-Write-Host "  Location: $apkPath" -ForegroundColor White
+Write-Host "  Primary asset: $primaryApkPath" -ForegroundColor White
 Write-Host "  Size: $apkSizeMB MB" -ForegroundColor Cyan
 Write-Host ""
 
@@ -158,39 +176,72 @@ if ($tagExists) {
     $changelogLine = "`n---`n**Full Changelog**: https://github.com/MazBer/Travli/compare/$previousTag...$tagName"
 }
 
-# Generate release notes
+# Prepare default "What's new" text based on version type
+switch ($VersionType) {
+    'major' {
+        $whatsNew = @(
+            "- Major update with significant new features.",
+            "- Includes breaking changes and large improvements."
+        ) -join "`n"
+    }
+    'minor' {
+        $whatsNew = @(
+            "- New features and UX improvements.",
+            "- Backward-compatible enhancements across the app."
+        ) -join "`n"
+    }
+    'patch' {
+        $whatsNew = @(
+            "- Bug fixes and performance improvements.",
+            "- Small stability and polish updates."
+        ) -join "`n"
+    }
+}
+
+# Generate release notes (short, English, focused on "What's new")
 $releaseNotes = @"
-## 🚀 Travli v$newVersion
+Travli v$newVersion
+Build: $build  |  APK size: $apkSizeMB MB  |  Date: $(Get-Date -Format "yyyy-MM-dd")
 
-**Build Number:** $build
-**APK Size:** $apkSizeMB MB
-**Release Date:** $(Get-Date -Format "MMMM dd, yyyy")
+### What's new
+$whatsNew
 
-### 📦 Download
-Download the APK file below and install on your Android device.
-
-### ✨ What's New
-<!-- Add release notes here -->
-
-### 📱 Installation
-1. Download ``app-release.apk``
-2. Enable "Install from Unknown Sources" in Android settings
-3. Open the APK file and install
-
-### 🔧 Technical Details
-- **Version:** $newVersion
-- **Build:** $build
-- **Flutter:** 3.9.2
-- **Minimum Android:** 5.0 (API 21)
-- **Target Android:** 14 (API 34)$changelogLine
+### Technical
+- Flutter: 3.9.2
+- Min Android: 5.0 (API 21)
+- Target Android: 14 (API 34)$changelogLine
 "@
 
-# Create release with APK
-gh release create $tagName `
-    $apkPath `
-    --title "v$newVersion" `
-    --notes $releaseNotes `
-    --latest
+# Write release notes to a temporary file to avoid quoting/escaping issues
+$notesFile = Join-Path $env:TEMP "travli_release_notes_$newVersion.txt"
+Set-Content -Path $notesFile -Value $releaseNotes -Encoding UTF8
+
+# Decide which APK files to attach
+$releaseAssets = @()
+if ($BuildType -eq 'release' -or $BuildType -eq 'both') {
+    if (Test-Path $releaseApkPath) {
+        $releaseAssets += $releaseApkPath
+    }
+}
+if ($BuildType -eq 'debug' -or $BuildType -eq 'both') {
+    if (Test-Path $debugApkPath) {
+        $releaseAssets += $debugApkPath
+    }
+}
+
+try {
+    # Create release with APK(s) using notes file
+    gh release create $tagName `
+        @releaseAssets `
+        --title "v$newVersion" `
+        --notes-file $notesFile `
+        --latest
+} finally {
+    # Clean up temporary notes file if it exists
+    if (Test-Path $notesFile) {
+        Remove-Item $notesFile -ErrorAction SilentlyContinue
+    }
+}
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Failed to create GitHub release" -ForegroundColor Red

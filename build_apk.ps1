@@ -10,11 +10,34 @@ Write-Host "  1. Release APK" -ForegroundColor White
 Write-Host "  2. Debug APK" -ForegroundColor White
 Write-Host "  3. Both (Release + Debug)" -ForegroundColor White
 Write-Host "  4. Release APK + GitHub Release" -ForegroundColor Green
+Write-Host "  5. Debug APK + GitHub Release" -ForegroundColor Green
+Write-Host "  6. Both (Release + Debug) + GitHub Release" -ForegroundColor Green
 Write-Host ""
-$choice = Read-Host "Enter your choice (1-4)"
+$choice = Read-Host "Enter your choice (1-6)"
 
 $buildRelease = $false
 $buildDebug = $false
+
+function Select-VersionType {
+    Write-Host "" 
+    Write-Host "Select version bump type:" -ForegroundColor Yellow
+    Write-Host "  1. Patch (0.0.1 -> 0.0.2)" -ForegroundColor White
+    Write-Host "  2. Minor (0.1.0 -> 0.2.0)" -ForegroundColor White
+    Write-Host "  3. Major (1.0.0 -> 2.0.0)" -ForegroundColor White
+    Write-Host ""
+    $versionChoice = Read-Host "Enter your choice (1-3)"
+
+    $versionType = switch ($versionChoice) {
+        "1" { "patch" }
+        "2" { "minor" }
+        "3" { "major" }
+        default {
+            Write-Host "[ERROR] Invalid choice. Using 'patch' as default." -ForegroundColor Yellow
+            "patch"
+        }
+    }
+    return $versionType
+}
 
 switch ($choice) {
     "1" { $buildRelease = $true }
@@ -24,34 +47,31 @@ switch ($choice) {
         $buildDebug = $true
     }
     "4" {
-        Write-Host ""
-        Write-Host "Select version bump type:" -ForegroundColor Yellow
-        Write-Host "  1. Patch (0.0.1 -> 0.0.2)" -ForegroundColor White
-        Write-Host "  2. Minor (0.1.0 -> 0.2.0)" -ForegroundColor White
-        Write-Host "  3. Major (1.0.0 -> 2.0.0)" -ForegroundColor White
-        Write-Host ""
-        $versionChoice = Read-Host "Enter your choice (1-3)"
-        
-        $versionType = switch ($versionChoice) {
-            "1" { "patch" }
-            "2" { "minor" }
-            "3" { "major" }
-            default {
-                Write-Host "[ERROR] Invalid choice. Using 'patch' as default." -ForegroundColor Yellow
-                "patch"
-            }
-        }
-        
-        Write-Host ""
-        Write-Host "[INFO] Will create GitHub release with version type: $versionType" -ForegroundColor Cyan
-        Write-Host ""
-        
-        # Run the create_release script
-        & .\create_release.ps1 -VersionType $versionType
+        $versionType = Select-VersionType
+        Write-Host "" 
+        Write-Host "[INFO] Will create GitHub release (RELEASE) with version type: $versionType" -ForegroundColor Cyan
+        Write-Host "" 
+        & .\create_release.ps1 -VersionType $versionType -BuildType release
+        exit $LASTEXITCODE
+    }
+    "5" {
+        $versionType = Select-VersionType
+        Write-Host "" 
+        Write-Host "[INFO] Will create GitHub release (DEBUG) with version type: $versionType" -ForegroundColor Cyan
+        Write-Host "" 
+        & .\create_release.ps1 -VersionType $versionType -BuildType debug
+        exit $LASTEXITCODE
+    }
+    "6" {
+        $versionType = Select-VersionType
+        Write-Host "" 
+        Write-Host "[INFO] Will create GitHub release (BOTH) with version type: $versionType" -ForegroundColor Cyan
+        Write-Host "" 
+        & .\create_release.ps1 -VersionType $versionType -BuildType both
         exit $LASTEXITCODE
     }
     default {
-        Write-Host "[ERROR] Invalid choice. Please enter 1, 2, 3, or 4." -ForegroundColor Red
+        Write-Host "[ERROR] Invalid choice. Please enter a number between 1 and 6." -ForegroundColor Red
         exit 1
     }
 }

@@ -52,3 +52,8 @@ docs/
 !CHANGELOG.md
 !LICENSE.md
 !RELEASE.md
+
+# Scripts: ignore all PowerShell helpers except main build/release scripts
+*.ps1
+!build_apk.ps1
+!create_release.ps1
