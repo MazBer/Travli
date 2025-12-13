@@ -6,6 +6,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/providers/api_providers.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/providers/connectivity_provider.dart';
+import '../../core/providers/history_provider.dart';
 import '../../core/services/search_history_service.dart';
 import '../../models/city.dart';
 import '../places/place_detail_card.dart';
@@ -20,7 +21,7 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final SearchHistoryService _historyService = SearchHistoryService();
+  final SearchHistoryService _searchHistoryService = SearchHistoryService();
   List<String> _searchHistory = [];
 
   @override
@@ -36,16 +37,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Future<void> _loadSearchHistory() async {
-    final history = await _historyService.getHistory();
+    final history = await _searchHistoryService.getHistory();
     setState(() {
       _searchHistory = history;
     });
   }
 
   void _onCitySelected(City city) async {
-    // Save to history
-    await _historyService.addToHistory(city.name);
+    // Save to search query history
+    await _searchHistoryService.addToHistory(city.name);
     await _loadSearchHistory();
+
+    // Log the city view event to the new history service
+    ref.read(historyProvider.notifier).addCity(city);
     
     ref.read(selectedCityProvider.notifier).state = city;
     Navigator.push(
@@ -171,7 +175,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        await _historyService.clearHistory();
+                        await _searchHistoryService.clearHistory();
                         await _loadSearchHistory();
                       },
                       child: Text('Clear'),
@@ -200,7 +204,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                       onPressed: () async {
-                        await _historyService.removeFromHistory(query);
+                        await _searchHistoryService.removeFromHistory(query);
                         await _loadSearchHistory();
                       },
                     ),

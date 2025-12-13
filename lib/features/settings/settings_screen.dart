@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../l10n/app_localizations.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/providers/units_provider.dart';
+import '../../core/providers/history_provider.dart'; // Add this import
 import '../../core/services/translation_service.dart';
 import '../../core/theme/theme_constants.dart';
 
@@ -66,6 +66,68 @@ class SettingsScreen extends ConsumerWidget {
             context,
             icon: Icons.login,
             title: l10n.signIn,
+          ),
+
+          // Data & Privacy section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
+            child: Text(
+              'Data & Privacy',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ),
+
+          ListTile(
+            leading: Container(
+              width: AppSpacing.avatarSm,
+              height: AppSpacing.avatarSm,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+              ),
+              child: Icon(Icons.delete_sweep_outlined, color: Theme.of(context).colorScheme.error),
+            ),
+            title: Text(
+              'Clear History',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.error),
+            ),
+            subtitle: Text(
+              'Deletes recent searches and trips',
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Confirm Clear History'),
+                  content: const Text('Are you sure you want to delete all of your history? This action cannot be undone.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text('Clear', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed == true) {
+                await ref.read(historyProvider.notifier).clearHistory();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('History cleared')),
+                  );
+                }
+              }
+            },
           ),
           
           // Info section

@@ -5,7 +5,9 @@ import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/providers/aco_provider.dart';
 import '../../core/services/aco_service.dart';
+import '../../core/providers/history_provider.dart';
 import '../../models/place.dart';
+import '../../models/route.dart';
 import 'route_result_screen.dart';
 
 // Transport mode enum
@@ -188,6 +190,24 @@ class _RouteConfigScreenState extends ConsumerState<RouteConfigScreen> {
         transportMode: googleMapsMode,
         startingLocation: startingLocationData,
       );
+
+      // Add the new route to history
+      final placeIds = result.route
+          .map((p) => p.id)
+          .where((id) => id != null)
+          .cast<int>()
+          .toList();
+
+      if (placeIds.isNotEmpty) {
+        final newRoute = TravelRoute(
+          name: '${widget.selectedPlaces.first.name} & more',
+          cityId: widget.selectedPlaces.first.cityId,
+          placeIds: placeIds,
+          totalDistance: result.totalDistance,
+          totalDuration: 0, // Duration is calculated on the result screen
+        );
+        ref.read(historyProvider.notifier).addRoute(newRoute);
+      }
 
       // Hide loading snackbar
       if (mounted) {

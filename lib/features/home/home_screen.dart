@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/constants/app_spacing.dart';
-import '../../core/providers/data_providers.dart';
+import '../../core/providers/history_provider.dart';
+import '../../models/city.dart';
+import '../../models/route.dart';
+import '../search/search_screen.dart'; // For CityPlacesScreen
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('[HomeScreen] Build method called.');
     final l10n = AppLocalizations.of(context)!;
-    final recentCitiesAsync = ref.watch(recentCitiesProvider);
-    final recentRoutesAsync = ref.watch(recentRoutesProvider);
+    final historyState = ref.watch(historyProvider);
+    final recentCities = historyState.recentCities;
+    final recentRoutes = historyState.recentRoutes;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.home),
@@ -44,30 +50,23 @@ class HomeScreen extends ConsumerWidget {
             
             SizedBox(
               height: 200,
-              child: recentRoutesAsync.when(
-                data: (routes) {
-                  if (routes.isEmpty) {
-                    return Center(
+              child: recentRoutes.isEmpty
+                  ? Center(
                       child: Text(
                         l10n.noRecentTrips,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                       ),
-                    );
-                  }
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                    itemCount: routes.length,
-                    itemBuilder: (context, index) {
-                      return _buildTripCard(context, routes[index]);
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => Center(child: Text('Error: $error')),
-              ),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                      itemCount: recentRoutes.length,
+                      itemBuilder: (context, index) {
+                        return _buildTripCard(context, recentRoutes[index]);
+                      },
+                    ),
             ),
             
             // Recently viewed section
@@ -84,34 +83,27 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             
-            recentCitiesAsync.when(
-              data: (cities) {
-                if (cities.isEmpty) {
-                  return Padding(
+            recentCities.isEmpty
+                ? Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Center(
                       child: Text(
                         l10n.noRecentlyViewed,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                       ),
                     ),
-                  );
-                }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                  itemCount: cities.length,
-                  itemBuilder: (context, index) {
-                    return _buildCityCard(context, cities[index]);
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => Center(child: Text('Error: $error')),
-            ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                    itemCount: recentCities.length,
+                    itemBuilder: (context, index) {
+                      return _buildCityCard(context, recentCities[index]);
+                    },
+                  ),
             
             const SizedBox(height: AppSpacing.xl),
           ],
@@ -120,7 +112,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTripCard(BuildContext context, route) {
+  Widget _buildTripCard(BuildContext context, TravelRoute route) {
     return Container(
       width: 240,
       margin: const EdgeInsets.only(right: AppSpacing.md),
@@ -157,51 +149,62 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCityCard(BuildContext context, city) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recently viewed',
-                  style: Theme.of(context).textTheme.labelMedium,
+  Widget _buildCityCard(BuildContext context, City city) {
+    return InkWell(
+      onTap: () {
+        // Navigate to the city places screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CityPlacesScreen(city: city),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.lg),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Recently viewed',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    city.name,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    city.country,
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  city.name,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                child: Center(
+                  child: Icon(
+                    Icons.location_city,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
-                Text(
-                  city.country,
-                  style: Theme.of(context).textTheme.labelMedium,
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 80,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.location_city,
-                  size: 32,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

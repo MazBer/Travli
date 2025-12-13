@@ -141,5 +141,5 @@ class Place {
   }
 
   @override
-  int get hashCode => id.hashCode ^ name.hashCode;
+  int get hashCode => (id ?? 0).hashCode ^ name.hashCode;
 }
